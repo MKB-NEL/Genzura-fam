@@ -405,6 +405,53 @@
       background-color: #2196F3;
     }
     
+    .finish-quantity-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    
+    .finish-quantity-content {
+      background-color: white;
+      padding: 25px;
+      border-radius: 8px;
+      width: 90%;
+      max-width: 400px;
+    }
+    
+    .quantity-controls {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 15px 0;
+    }
+    
+    .quantity-btn {
+      width: 40px;
+      height: 40px;
+      border: 1px solid #ccc;
+      background: #f9f9f9;
+      font-size: 18px;
+      cursor: pointer;
+    }
+    
+    .quantity-display {
+      width: 60px;
+      height: 40px;
+      border: 1px solid #ccc;
+      text-align: center;
+      line-height: 40px;
+      margin: 0 10px;
+      font-weight: bold;
+    }
+    
     @media (max-width: 480px) {
       .container {
         padding: 15px;
@@ -534,29 +581,27 @@
           <p>Loading details...</p>
         </div>
       </div>
-      
-      <div class="finish-form" id="finishForm">
-        <h3>Mark as Finished</h3>
-        <div class="form-group">
-          <label for="finishQuantity">Quantity Finished</label>
-          <input type="number" id="finishQuantity" min="1" value="1">
-          <div class="error" id="finishQuantityError">Please enter valid quantity</div>
-        </div>
-        <button type="button" id="markFinishedBtn">Mark as Finished</button>
-      </div>
     </div>
   </div>
   
-  <!-- Finish Confirmation Modal -->
-  <div id="finishConfirmModal" class="modal">
-    <div class="modal-content">
+  <!-- Finish Quantity Modal -->
+  <div id="finishQuantityModal" class="finish-quantity-modal">
+    <div class="finish-quantity-content">
       <span class="close">&times;</span>
-      <h2>Confirm Finish</h2>
+      <h2>Mark as Finished</h2>
       
-      <p id="finishConfirmText">Are you sure you want to mark this item as finished?</p>
+      <p id="finishProductName">Product Name</p>
+      
+      <div class="quantity-controls">
+        <button class="quantity-btn" id="decreaseQuantity">-</button>
+        <div class="quantity-display" id="quantityDisplay">1</div>
+        <button class="quantity-btn" id="increaseQuantity">+</button>
+      </div>
+      
+      <p>Available: <span id="availableQuantity">0</span></p>
       
       <div style="display: flex; gap: 10px; margin-top: 20px;">
-        <button type="button" id="confirmFinishBtn" style="flex: 1;">Yes, Finish</button>
+        <button type="button" id="confirmFinishBtn" style="flex: 1;">Finish Items</button>
         <button type="button" id="cancelFinishBtn" style="flex: 1; background: #ccc;">Cancel</button>
       </div>
     </div>
@@ -610,13 +655,17 @@
     const addStockBtn = document.getElementById('addStockBtn');
     const stockModal = document.getElementById('stockModal');
     const detailModal = document.getElementById('detailModal');
-    const finishConfirmModal = document.getElementById('finishConfirmModal');
+    const finishQuantityModal = document.getElementById('finishQuantityModal');
     const closeBtns = document.querySelectorAll('.close');
     const stockForm = document.getElementById('stockForm');
     const productDetails = document.getElementById('productDetails');
-    const markFinishedBtn = document.getElementById('markFinishedBtn');
     const confirmFinishBtn = document.getElementById('confirmFinishBtn');
     const cancelFinishBtn = document.getElementById('cancelFinishBtn');
+    const decreaseQuantityBtn = document.getElementById('decreaseQuantity');
+    const increaseQuantityBtn = document.getElementById('increaseQuantity');
+    const quantityDisplay = document.getElementById('quantityDisplay');
+    const availableQuantityEl = document.getElementById('availableQuantity');
+    const finishProductNameEl = document.getElementById('finishProductName');
     const totalItemsEl = document.getElementById('totalItems');
     const totalValueEl = document.getElementById('totalValue');
     const tabs = document.querySelectorAll('.tab');
@@ -629,6 +678,7 @@
     let currentItemId = null;
     let searchTimer = null;
     let finishQuantity = 1;
+    let maxAvailableQuantity = 1;
 
     // Initialize the page
     function init() {
@@ -659,7 +709,7 @@
         btn.addEventListener('click', () => {
           closeModal();
           closeDetailModal();
-          closeFinishConfirmModal();
+          closeFinishQuantityModal();
         });
       });
       
@@ -667,7 +717,7 @@
       window.addEventListener('click', (event) => {
         if (event.target === stockModal) closeModal();
         if (event.target === detailModal) closeDetailModal();
-        if (event.target === finishConfirmModal) closeFinishConfirmModal();
+        if (event.target === finishQuantityModal) closeFinishQuantityModal();
       });
       
       // Form submissions
@@ -678,29 +728,30 @@
         }
       });
       
-      // Mark as finished button
-      markFinishedBtn.addEventListener('click', () => {
-        const quantity = parseInt(document.getElementById('finishQuantity').value) || 1;
-        const item = userStock.find(item => item.id === currentItemId);
-        
-        if (item && quantity > 0 && quantity <= item.quantity) {
-          finishQuantity = quantity;
-          showFinishConfirmModal(item, quantity);
-        } else {
-          showError('Please enter a valid quantity');
+      // Quantity controls
+      decreaseQuantityBtn.addEventListener('click', () => {
+        if (finishQuantity > 1) {
+          finishQuantity--;
+          quantityDisplay.textContent = finishQuantity;
+        }
+      });
+      
+      increaseQuantityBtn.addEventListener('click', () => {
+        if (finishQuantity < maxAvailableQuantity) {
+          finishQuantity++;
+          quantityDisplay.textContent = finishQuantity;
         }
       });
       
       // Confirm finish button
       confirmFinishBtn.addEventListener('click', async () => {
         await markAsFinished(currentItemId, finishQuantity);
-        closeFinishConfirmModal();
-        closeDetailModal();
+        closeFinishQuantityModal();
       });
       
       // Cancel finish button
       cancelFinishBtn.addEventListener('click', () => {
-        closeFinishConfirmModal();
+        closeFinishQuantityModal();
       });
       
       // Search functionality with debounce
@@ -867,8 +918,7 @@
           const id = e.currentTarget.closest('.stock-item').dataset.id;
           const item = userStock.find(item => item.id === id);
           if (item) {
-            finishQuantity = item.quantity;
-            showFinishConfirmModal(item, item.quantity);
+            showFinishQuantityModal(item);
           }
         });
       });
@@ -972,6 +1022,19 @@
           statusText = `Finished after ${item.daysInStock || diffDays} days`;
         }
         
+        // Show finish history if available
+        let finishHistory = '';
+        if (item.finished && item.finishedQuantity && item.finishedDate) {
+          finishHistory = `<br>Finished: ${item.finishedQuantity} ${item.unit} on ${formatDate(item.finishedDate)}`;
+        }
+        
+        // Show multiple finish events if available
+        if (item.finishHistory && item.finishHistory.length > 0) {
+          finishHistory = item.finishHistory.map(finish => 
+            `<br>Finished: ${finish.quantity} ${item.unit} on ${formatDate(finish.date)}`
+          ).join('');
+        }
+        
         return `
           <div class="stock-item" data-id="${item.id}">
             <div class="stock-info">
@@ -979,8 +1042,7 @@
               <div class="stock-details">
                 ${item.finished ? 'FINISHED - ' : ''}${item.quantity} ${item.unit} • ${(item.price * (item.finished ? item.originalQuantity || item.quantity : item.quantity)).toLocaleString()} RWF
                 ${item.expiryDate ? `<br>Expiry: ${formatDate(item.expiryDate)}` : ''}
-                ${item.finishedDate ? `<br>Finished: ${formatDate(item.finishedDate)}` : ''}
-                ${item.finished && item.finishedQuantity ? `<br>Finished Quantity: ${item.finishedQuantity}/${item.originalQuantity || item.quantity}` : ''}
+                ${finishHistory}
               </div>
               <div class="days-in-stock ${statusClass}">${statusText}</div>
             </div>
@@ -1093,9 +1155,20 @@
           </div>
           <div class="product-detail">
             <span class="detail-label">Days in Stock:</span>
-            <span class="detail-value">${item.daysInStock || diffDays} days</span>
+          <span class="detail-value">${item.daysInStock || diffDays} days</span>
           </div>
         `;
+      }
+      
+      // Show finish history if available
+      let finishHistory = '';
+      if (item.finishHistory && item.finishHistory.length > 0) {
+        finishHistory = `<div class="product-detail">
+          <span class="detail-label">Finish History:</span>
+          <span class="detail-value">${item.finishHistory.map(finish => 
+            `${finish.quantity} ${item.unit} on ${formatDate(finish.date)}`
+          ).join('<br>')}</span>
+        </div>`;
       }
       
       productDetails.innerHTML = `
@@ -1121,15 +1194,8 @@
         </div>
         ${expiryInfo}
         ${finishedInfo}
+        ${finishHistory}
       `;
-      
-      // Show/hide finish form based on whether item is already finished
-      const finishForm = document.getElementById('finishForm');
-      finishForm.style.display = item.finished ? 'none' : 'block';
-      
-      // Set max quantity for finish form
-      document.getElementById('finishQuantity').max = item.quantity;
-      document.getElementById('finishQuantity').value = item.quantity;
       
       detailModal.style.display = 'flex';
     }
@@ -1140,20 +1206,23 @@
       currentItemId = null;
     }
     
-    // Show finish confirmation modal
-    function showFinishConfirmModal(item, quantity) {
+    // Show finish quantity modal
+    function showFinishQuantityModal(item) {
       currentItemId = item.id;
-      finishQuantity = quantity;
+      maxAvailableQuantity = item.quantity;
+      finishQuantity = 1;
       
-      const confirmText = document.getElementById('finishConfirmText');
-      confirmText.textContent = `Are you sure you want to mark ${quantity} ${item.unit} of ${item.name} as finished?`;
+      finishProductNameEl.textContent = item.name;
+      availableQuantityEl.textContent = `${maxAvailableQuantity} ${item.unit}`;
+      quantityDisplay.textContent = finishQuantity;
       
-      finishConfirmModal.style.display = 'flex';
+      finishQuantityModal.style.display = 'flex';
     }
     
-    // Close finish confirmation modal
-    function closeFinishConfirmModal() {
-      finishConfirmModal.style.display = 'none';
+    // Close finish quantity modal
+    function closeFinishQuantityModal() {
+      finishQuantityModal.style.display = 'none';
+      currentItemId = null;
     }
     
     // Validate stock form
@@ -1234,21 +1303,28 @@
         const diffTime = finishedDate - addedDate;
         const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
         
+        // Get current finish history or initialize empty array
+        const currentFinishHistory = item.finishHistory || [];
+        
+        // Add new finish entry to history
+        currentFinishHistory.push({
+          quantity: quantity,
+          date: finishedDate,
+          daysInStock: diffDays
+        });
+        
         const updateData = {
-          finished: true,
-          finishedDate: finishedDate,
-          finishedQuantity: quantity,
-          daysInStock: diffDays,
-          originalQuantity: item.quantity,
+          finishHistory: currentFinishHistory,
           quantity: item.quantity - quantity,
           updatedAt: new Date()
         };
         
-        // If not all quantity is finished, keep the item with remaining quantity
-        if (quantity < item.quantity) {
-          updateData.finished = false;
-          updateData.finishedDate = null;
-          updateData.daysInStock = null;
+        // If all quantity is finished, mark as fully finished
+        if (quantity >= item.quantity) {
+          updateData.finished = true;
+          updateData.finishedDate = finishedDate;
+          updateData.daysInStock = diffDays;
+          updateData.originalQuantity = item.quantity;
         }
         
         await updateDoc(doc(db, 'users', currentUser.uid, 'stock', id), updateData);
