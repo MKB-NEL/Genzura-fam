@@ -292,6 +292,10 @@
       display: none;
     }
     
+    .price-input {
+      display: none;
+    }
+    
     .popup {
       position: fixed;
       bottom: 20px;
@@ -370,8 +374,11 @@
         <input type="text" id="productInput" placeholder="Product name">
         <div class="error" id="productError">Please enter product name</div>
         
-        <input type="number" id="quantityInput" placeholder="Quantity">
+        <input type="number" id="quantityInput" placeholder="Quantity" value="1" min="1">
         <div class="error" id="quantityError">Please enter quantity</div>
+        
+        <input type="number" id="priceInput" placeholder="Price per item (RWF)" class="price-input">
+        <div class="error" id="priceError">Please enter price</div>
       </div>
       
       <button id="confirmBtn">CONFIRM</button>
@@ -431,7 +438,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
     import { getFirestore, collection, doc, setDoc, getDoc, getDocs, addDoc, serverTimestamp, query, where, orderBy, limit } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
     
     const firebaseConfig = {
@@ -456,6 +463,7 @@
     const detailInput = document.getElementById('detailInput');
     const productInput = document.getElementById('productInput');
     const quantityInput = document.getElementById('quantityInput');
+    const priceInput = document.getElementById('priceInput');
     const stockDetails = document.getElementById('stockDetails');
     const confirmBtn = document.getElementById('confirmBtn');
     const notificationPreview = document.getElementById('notificationPreview');
@@ -505,9 +513,11 @@
           if (selectedCategory === 'stock') {
             detailInput.style.display = 'none';
             stockDetails.style.display = 'block';
+            priceInput.classList.add('price-input');
           } else {
             detailInput.style.display = 'block';
             stockDetails.style.display = 'none';
+            priceInput.classList.remove('price-input');
             detailInput.placeholder = selectedCategory === 'service' 
               ? 'What service did you pay for?' 
               : 'What product did you buy?';
@@ -692,6 +702,12 @@
           document.getElementById('quantityError').style.display = 'block';
           isValid = false;
         }
+        
+        const price = parseFloat(priceInput.value);
+        if (isNaN(price) || price <= 0) {
+          document.getElementById('priceError').style.display = 'block';
+          isValid = false;
+        }
       } else {
         if (!detailInput.value.trim()) {
           document.getElementById('detailError').style.display = 'block';
@@ -716,8 +732,35 @@
         };
         
         if (selectedCategory === 'stock') {
-          expenseData.product = productInput.value.trim();
-          expenseData.quantity = parseFloat(quantityInput.value);
+          const productName = productInput.value.trim();
+          const quantity = parseFloat(quantityInput.value);
+          const price = parseFloat(priceInput.value);
+          
+          expenseData.product = productName;
+          expenseData.quantity = quantity;
+          expenseData.unitPrice = price;
+          
+          // Also save to stock collection
+          const stockData = {
+            name: productName,
+            quantity: quantity,
+            price: price,
+            unit: 'pcs', // Default unit, can be customized
+            addedDate: new Date(),
+            updatedAt: new Date()
+          };
+          
+          // Add to stock collection
+          await setDoc(doc(collection(db, 'users', currentUser.uid, 'stock')), stockData);
+          
+          // Create notification for stock addition
+          await addDoc(collection(db, 'users', currentUser.uid, 'notifications'), {
+            title: 'Stock Added',
+            message: `Added ${quantity} ${stockData.unit} of ${productName} to your stock`,
+            type: 'stock',
+            read: false,
+            timestamp: new Date()
+          });
         } else {
           expenseData.description = detailInput.value.trim();
         }
@@ -732,10 +775,12 @@
         amountInput.value = '';
         detailInput.value = '';
         productInput.value = '';
-        quantityInput.value = '';
+        quantityInput.value = '1';
+        priceInput.value = '';
         categoryBtns.forEach(btn => btn.classList.remove('active'));
         detailInput.style.display = 'none';
         stockDetails.style.display = 'none';
+        priceInput.classList.remove('price-input');
         selectedCategory = null;
         
         showPopup('Expense recorded successfully!', 'success');
