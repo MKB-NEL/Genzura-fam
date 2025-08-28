@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GENZURA - Home</title>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#000000">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+  <link rel="icon" type="image/png" href="https://i.ibb.co/mFqfcpPj/cropped-circle-image.png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: Arial, sans-serif;
+      background: #fff;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      position: relative;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+    
+    .container {
+      width: 100%;
+      padding: 20px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    
+    .logo {
+      font-size: 28px;
+      font-weight: bold;
+      color: #008000;
+      margin-bottom: 10px;
+    }
+    
+    .ad-banner {
+      background: #f5f5f5;
+      padding: 10px;
+      border-radius: 6px;
+      text-align: center;
+      color: #555;
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+    
+    .profile-section {
+      display: flex;
+      align-items: center;
+      margin-bottom: 25px;
+    }
+    
+    .profile-pic {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: #008000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 24px;
+      margin-right: 15px;
+    }
+    
+    .profile-info {
+      flex: 1;
+    }
+    
+    .profile-name {
+      font-weight: bold;
+      font-size: 18px;
+    }
+    
+    .profile-phone {
+      color: #555;
+      font-size: 14px;
+    }
+    
+    h2 {
+      font-size: 20px;
+      margin-bottom: 10px;
+      color: #000;
+    }
+    
+    p {
+      color: #555;
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+    
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 16px;
+    }
+    
+    .category-selector {
+      display: flex;
+      justify-content: space-between;
+      margin: 15px 0;
+    }
+    
+    .category-btn {
+      flex: 1;
+      padding: 10px;
+      margin: 0 5px;
+      text-align: center;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      background: #f9f9f9;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    
+    .category-btn.active {
+      background: #008000;
+      color: white;
+      border-color: #008000;
+    }
+    
+    button {
+      width: 100%;
+      padding: 14px;
+      background: black;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 5px;
+    }
+    
+    .section {
+      margin-bottom: 25px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .section-title {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 15px;
+      color: #000;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .section-title a {
+      color: #008000;
+      font-size: 14px;
+      text-decoration: none;
+    }
+    
+    .notification-box {
+      padding: 12px;
+      border: 1px solid #eee;
+      border-radius: 6px;
+      margin-bottom: 10px;
+      cursor: pointer;
+    }
+    
+    .notification-title {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    
+    .notification-preview {
+      font-size: 14px;
+      color: #555;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    .question-container {
+      margin-bottom: 15px;
+    }
+    
+    .question-text {
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    
+    .answer-option {
+      display: block;
+      padding: 10px;
+      margin-bottom: 8px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      cursor: pointer;
+      background: #f9f9f9;
+    }
+    
+    .submit-answer {
+      padding: 10px 20px;
+      background: #008000;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: white;
+      display: flex;
+      justify-content: space-around;
+      padding: 10px;
+      border-top: 1px solid #eee;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+    
+    .nav-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: #666;
+      text-decoration: none;
+      font-size: 12px;
+    }
+    
+    .nav-btn.active {
+      color: #008000;
+    }
+    
+    .nav-icon {
+      font-size: 20px;
+      margin-bottom: 4px;
+    }
+    
+    .loading {
+      display: none;
+      text-align: center;
+      margin: 10px 0;
+    }
+    
+    .loading-spinner {
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #008000;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .error {
+      color: red;
+      font-size: 12px;
+      margin-top: 5px;
+      display: none;
+    }
+    
+    .info-text {
+      color: #666;
+      font-size: 12px;
+      margin-top: 4px;
+      font-style: italic;
+    }
+    
+    .stock-details {
+      display: none;
+    }
+    
+    .popup {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #333;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 6px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      z-index: 1001;
+      display: none;
+      max-width: 90%;
+      text-align: center;
+    }
+    
+    .popup.success {
+      background-color: #4CAF50;
+    }
+    
+    .popup.error {
+      background-color: #f44336;
+    }
+    
+    .popup.info {
+      background-color: #2196F3;
+    }
+    
+    @media (max-width: 480px) {
+      .container {
+        padding: 15px;
+      }
+      
+      input {
+        font-size: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="logo">GENZURA</div>
+      <div class="ad-banner">
+        Advertisement Space
+      </div>
+    </div>
+    
+    <div class="profile-section">
+      <div class="profile-pic">
+        <i class="fas fa-user"></i>
+      </div>
+      <div class="profile-info">
+        <div class="profile-name" id="userName">Loading...</div>
+        <div class="profile-phone" id="userPhone">Loading...</div>
+      </div>
+    </div>
+    
+    <div class="section">
+      <h2>Expense Tracking</h2>
+      <p>Record your daily expenses</p>
+      
+      <input type="number" id="amountInput" placeholder="How much did you use? (RWF)">
+      <div class="error" id="amountError">Please enter a valid amount</div>
+      
+      <div class="category-selector">
+        <div class="category-btn" data-category="service">Service</div>
+        <div class="category-btn" data-category="product">Product</div>
+        <div class="category-btn" data-category="stock">Stock</div>
+      </div>
+      
+      <input type="text" id="detailInput" placeholder="I paid for ..." style="display: none;">
+      <div class="error" id="detailError">Please enter details</div>
+      
+      <div class="stock-details" id="stockDetails">
+        <input type="text" id="productInput" placeholder="Product name">
+        <div class="error" id="productError">Please enter product name</div>
+        
+        <input type="number" id="quantityInput" placeholder="Quantity">
+        <div class="error" id="quantityError">Please enter quantity</div>
+      </div>
+      
+      <button id="confirmBtn">CONFIRM</button>
+    </div>
+    
+    <div class="section">
+      <div class="section-title">
+        Notifications
+        <a href="notifications.html">View All</a>
+      </div>
+      
+      <div class="notification-box" id="notificationPreview">
+        <div class="notification-title">Loading notifications...</div>
+        <div class="notification-preview">Tap to view all notifications</div>
+      </div>
+    </div>
+    
+    <div class="section">
+      <div class="section-title">
+        Daily Question
+      </div>
+      
+      <div class="question-container" id="questionContainer">
+        <div class="loading">
+          <div class="loading-spinner"></div>
+          <p>Loading question...</p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="loading" id="mainLoading">
+      <div class="loading-spinner"></div>
+      <p>Loading your data...</p>
+    </div>
+  </div>
+  
+  <div class="bottom-nav">
+    <a href="home.html" class="nav-btn active">
+      <i class="fas fa-home nav-icon"></i>
+      <span>Home</span>
+    </a>
+    <a href="overview.html" class="nav-btn">
+      <i class="fas fa-chart-pie nav-icon"></i>
+      <span>Overview</span>
+    </a>
+    <a href="stock.html" class="nav-btn">
+      <i class="fas fa-boxes nav-icon"></i>
+      <span>Stock</span>
+    </a>
+    <a href="notifications.html" class="nav-btn">
+      <i class="fas fa-bell nav-icon"></i>
+      <span>Notifications</span>
+    </a>
+  </div>
+
+  <div id="popup" class="popup"></div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+    import { getFirestore, collection, doc, setDoc, getDoc, getDocs, addDoc, serverTimestamp, query, where, orderBy, limit } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+    
+    const firebaseConfig = {
+      apiKey: "AIzaSyBgPFieysdvDl_Fx4nSZ95C25W7Wd6Xj7k",
+      authDomain: "aimebasketball.firebaseapp.com",
+      databaseURL: "https://aimebasketball-default-rtdb.firebaseio.com",
+      projectId: "aimebasketball",
+      storageBucket: "aimebasketball.firebasestorage.app",
+      messagingSenderId: "864360532917",
+      appId: "1:864360532917:web:c327893380d6fa2d30a7fc",
+      measurementId: "G-L4VRQQXHFM"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // DOM Elements
+    const userNameEl = document.getElementById('userName');
+    const userPhoneEl = document.getElementById('userPhone');
+    const amountInput = document.getElementById('amountInput');
+    const detailInput = document.getElementById('detailInput');
+    const productInput = document.getElementById('productInput');
+    const quantityInput = document.getElementById('quantityInput');
+    const stockDetails = document.getElementById('stockDetails');
+    const confirmBtn = document.getElementById('confirmBtn');
+    const notificationPreview = document.getElementById('notificationPreview');
+    const questionContainer = document.getElementById('questionContainer');
+    const mainLoading = document.getElementById('mainLoading');
+    const categoryBtns = document.querySelectorAll('.category-btn');
+    
+    // State variables
+    let currentUser = null;
+    let userData = null;
+    let selectedCategory = null;
+    let currentQuestion = null;
+    let searchTimer = null;
+
+    // Initialize the page
+    function init() {
+      showLoading(true);
+      
+      // Check authentication state
+      onAuthStateChanged(auth, async (user) => {
+        if (user) {
+          currentUser = user;
+          await loadUserData();
+          await loadLatestNotification();
+          await loadRandomQuestion();
+          showLoading(false);
+        } else {
+          // Redirect to login if not authenticated
+          window.location.href = 'login.html';
+        }
+      });
+      
+      // Set up event listeners
+      setupEventListeners();
+    }
+    
+    // Set up event listeners
+    function setupEventListeners() {
+      // Category selection
+      categoryBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          categoryBtns.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          selectedCategory = btn.dataset.category;
+          
+          // Show/hide appropriate input fields
+          if (selectedCategory === 'stock') {
+            detailInput.style.display = 'none';
+            stockDetails.style.display = 'block';
+          } else {
+            detailInput.style.display = 'block';
+            stockDetails.style.display = 'none';
+            detailInput.placeholder = selectedCategory === 'service' 
+              ? 'What service did you pay for?' 
+              : 'What product did you buy?';
+          }
+        });
+      });
+      
+      // Confirm button
+      confirmBtn.addEventListener('click', async () => {
+        if (await validateExpenseForm()) {
+          await saveExpense();
+        }
+      });
+      
+      // Notification preview click
+      notificationPreview.addEventListener('click', () => {
+        window.location.href = 'notifications.html';
+      });
+    }
+    
+    // Load user data from Firestore
+    async function loadUserData() {
+      try {
+        const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+        if (userDoc.exists()) {
+          userData = userDoc.data();
+          userNameEl.textContent = userData.fullName || 'User';
+          userPhoneEl.textContent = userData.phone || '';
+        } else {
+          console.error('User document not found');
+        }
+      } catch (error) {
+        console.error('Error loading user data:', error);
+        showError('Failed to load user data');
+      }
+    }
+    
+    // Load latest notification
+    async function loadLatestNotification() {
+      try {
+        const q = query(
+          collection(db, 'users', currentUser.uid, 'notifications'),
+          orderBy('timestamp', 'desc'),
+          limit(1)
+        );
+        
+        const querySnapshot = await getDocs(q);
+        if (!querySnapshot.empty) {
+          const notification = querySnapshot.docs[0].data();
+          notificationPreview.innerHTML = `
+            <div class="notification-title">${notification.title || 'New Notification'}</div>
+            <div class="notification-preview">${notification.message || 'Tap to view details'}</div>
+          `;
+        } else {
+          notificationPreview.innerHTML = `
+            <div class="notification-title">No notifications</div>
+            <div class="notification-preview">You're all caught up!</div>
+          `;
+        }
+      } catch (error) {
+        console.error('Error loading notifications:', error);
+      }
+    }
+    
+    // Load a random question that user hasn't answered
+    async function loadRandomQuestion() {
+      try {
+        // First get all questions
+        const questionsSnapshot = await getDocs(collection(db, 'questions'));
+        const allQuestions = [];
+        questionsSnapshot.forEach(doc => {
+          allQuestions.push({ id: doc.id, ...doc.data() });
+        });
+        
+        // Then get answered questions
+        const answeredSnapshot = await getDocs(
+          collection(db, 'users', currentUser.uid, 'answers')
+        );
+        const answeredIds = [];
+        answeredSnapshot.forEach(doc => {
+          answeredIds.push(doc.data().questionId);
+        });
+        
+        // Filter out answered questions
+        const unansweredQuestions = allQuestions.filter(
+          q => !answeredIds.includes(q.id)
+        );
+        
+        if (unansweredQuestions.length > 0) {
+          // Select a random question
+          currentQuestion = unansweredQuestions[
+            Math.floor(Math.random() * unansweredQuestions.length)
+          ];
+          
+          displayQuestion(currentQuestion);
+        } else {
+          questionContainer.innerHTML = `
+            <p>No more questions available. Check back later!</p>
+          `;
+        }
+      } catch (error) {
+        console.error('Error loading questions:', error);
+        questionContainer.innerHTML = `
+          <p>Failed to load questions. Please try again later.</p>
+        `;
+      }
+    }
+    
+    // Display question in the UI
+    function displayQuestion(question) {
+      questionContainer.innerHTML = `
+        <div class="question-text">${question.text}</div>
+        <form id="answerForm">
+          ${question.options.map((option, index) => `
+            <label class="answer-option">
+              <input type="radio" name="answer" value="${option}" required>
+              ${option}
+            </label>
+          `).join('')}
+          <button type="submit" class="submit-answer">Submit Answer</button>
+        </form>
+      `;
+      
+      // Add event listener for form submission
+      document.getElementById('answerForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const selectedAnswer = document.querySelector('input[name="answer"]:checked').value;
+        await saveAnswer(question.id, selectedAnswer);
+      });
+    }
+    
+    // Save answer to Firestore
+    async function saveAnswer(questionId, answer) {
+      try {
+        await addDoc(collection(db, 'users', currentUser.uid, 'answers'), {
+          questionId,
+          answer,
+          timestamp: serverTimestamp()
+        });
+        
+        questionContainer.innerHTML = `
+          <p>Thanks for your answer!</p>
+          <button class="submit-answer" onclick="location.reload()">Next Question</button>
+        `;
+      } catch (error) {
+        console.error('Error saving answer:', error);
+        showError('Failed to save your answer');
+      }
+    }
+    
+    // Validate expense form
+    async function validateExpenseForm() {
+      let isValid = true;
+      
+      // Reset error messages
+      document.querySelectorAll('.error').forEach(el => {
+        el.style.display = 'none';
+      });
+      
+      // Validate amount
+      const amount = parseFloat(amountInput.value);
+      if (isNaN(amount) || amount <= 0) {
+        document.getElementById('amountError').style.display = 'block';
+        isValid = false;
+      }
+      
+      // Validate category selection
+      if (!selectedCategory) {
+        showError('Please select a category');
+        isValid = false;
+      }
+      
+      // Validate details based on category
+      if (selectedCategory === 'stock') {
+        if (!productInput.value.trim()) {
+          document.getElementById('productError').style.display = 'block';
+          isValid = false;
+        }
+        
+        const quantity = parseFloat(quantityInput.value);
+        if (isNaN(quantity) || quantity <= 0) {
+          document.getElementById('quantityError').style.display = 'block';
+          isValid = false;
+        }
+      } else {
+        if (!detailInput.value.trim()) {
+          document.getElementById('detailError').style.display = 'block';
+          isValid = false;
+        }
+      }
+      
+      return isValid;
+    }
+    
+    // Save expense to Firestore
+    async function saveExpense() {
+      try {
+        const amount = parseFloat(amountInput.value);
+        const expenseData = {
+          amount,
+          category: selectedCategory,
+          timestamp: serverTimestamp(),
+          date: new Date().toLocaleDateString(),
+          time: new Date().toLocaleTimeString(),
+          day: new Date().getDay()
+        };
+        
+        if (selectedCategory === 'stock') {
+          expenseData.product = productInput.value.trim();
+          expenseData.quantity = parseFloat(quantityInput.value);
+        } else {
+          expenseData.description = detailInput.value.trim();
+        }
+        
+        // Add to usedmoney collection
+        await addDoc(
+          collection(db, 'users', currentUser.uid, 'usedmoney'), 
+          expenseData
+        );
+        
+        // Reset form
+        amountInput.value = '';
+        detailInput.value = '';
+        productInput.value = '';
+        quantityInput.value = '';
+        categoryBtns.forEach(btn => btn.classList.remove('active'));
+        detailInput.style.display = 'none';
+        stockDetails.style.display = 'none';
+        selectedCategory = null;
+        
+        showPopup('Expense recorded successfully!', 'success');
+      } catch (error) {
+        console.error('Error saving expense:', error);
+        showError('Failed to save expense');
+      }
+    }
+    
+    // Show loading state
+    function showLoading(show) {
+      if (show) {
+        mainLoading.style.display = 'block';
+      } else {
+        mainLoading.style.display = 'none';
+      }
+    }
+    
+    // Show error message
+    function showError(message) {
+      showPopup(message, 'error');
+    }
+    
+    // Show popup message
+    function showPopup(message, type = 'info') {
+      const popup = document.getElementById('popup');
+      if (popup) {
+        popup.textContent = message;
+        popup.className = 'popup ' + type;
+        popup.style.display = 'block';
+        
+        setTimeout(() => {
+          popup.style.display = 'none';
+        }, 3000);
+      }
+    }
+    
+    // Initialize the application
+    init();
+  </script>
+</body>
+</html>
