@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GENZURA - Login</title>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#000000">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+  <link rel="icon" type="image/png" href="https://i.ibb.co/mFqfcpPj/cropped-circle-image.png">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: Arial, sans-serif;
+      background: #fff;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      position: relative;
+    }
+    
+    .container {
+      width: 100%;
+      max-width: 400px;
+      padding: 20px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    
+    .login-container {
+      width: 100%;
+      text-align: center;
+    }
+    
+    .logo {
+      font-size: 28px;
+      font-weight: bold;
+      color: #008000;
+      margin-bottom: 20px;
+    }
+    
+    h2 {
+      font-size: 20px;
+      margin-bottom: 10px;
+    }
+    
+    p {
+      color: #555;
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+    
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 16px;
+    }
+    
+    .forgot {
+      display: block;
+      text-align: right;
+      font-size: 13px;
+      margin-bottom: 15px;
+      color: #008000;
+      text-decoration: none;
+    }
+    
+    button {
+      width: 100%;
+      padding: 14px;
+      background: black;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 5px;
+    }
+    
+    .terms {
+      font-size: 12px;
+      color: #555;
+      margin-top: 15px;
+      line-height: 1.4;
+    }
+    
+    .create {
+      margin-top: 15px;
+      font-size: 14px;
+    }
+    
+    .create a {
+      color: #008000;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    
+    footer {
+      width: 100%;
+      text-align: center;
+      padding: 15px;
+      margin-top: auto;
+      font-size: 12px;
+      color: #666;
+      border-top: 1px solid #eee;
+    }
+    
+    footer a {
+      color: #008000;
+      text-decoration: none;
+    }
+    
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    
+    .modal-content {
+      background-color: white;
+      padding: 25px;
+      border-radius: 8px;
+      width: 90%;
+      max-width: 400px;
+      max-height: 90%;
+      overflow-y: auto;
+    }
+    
+    .close {
+      float: right;
+      font-size: 24px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    
+    .form-group {
+      margin-bottom: 15px;
+      text-align: left;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 14px;
+      color: #333;
+    }
+    
+    .error {
+      color: red;
+      font-size: 12px;
+      margin-top: 5px;
+      display: none;
+    }
+    
+    .info-text {
+      color: #666;
+      font-size: 12px;
+      margin-top: 4px;
+      font-style: italic;
+    }
+    
+    .loading {
+      display: none;
+      text-align: center;
+      margin: 10px 0;
+    }
+    
+    .loading-spinner {
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #008000;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .popup {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #333;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 6px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      z-index: 1001;
+      display: none;
+      max-width: 90%;
+      text-align: center;
+    }
+    
+    .popup.success {
+      background-color: #4CAF50;
+    }
+    
+    .popup.error {
+      background-color: #f44336;
+    }
+    
+    .popup.info {
+      background-color: #2196F3;
+    }
+    
+    @media (max-width: 480px) {
+      .container {
+        padding: 15px;
+      }
+      
+      input {
+        font-size: 16px;
+      }
+      
+      .modal-content {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="login-container">
+      <div class="logo">GENZURA</div>
+      <h2>Sign in</h2>
+      <p>Please enter your details to continue to GENZURA</p>
+      
+      <form id="loginForm">
+        <input type="text" id="loginPhone" placeholder="Enter your phone number" required>
+        <input type="password" id="loginPassword" placeholder="Enter your password" required>
+        <a href="#" class="forgot">Forgot password?</a>
+        <button type="submit">Sign In</button>
+      </form>
+      
+      <div class="terms">
+        By logging-in, you accept the new <a href="terms.html">Terms of use</a> including 
+        <a href="terms.html">Privacy Policy</a> of GenzuraAccount.
+      </div>
+      
+      <div class="create">
+        Don't have an account? <a id="showSignup">Create Account</a>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    Genzura © 2025 <a href="https://github.com/mkb-nel" target="_blank">M.K.Bertrand</a> - <a href="terms.html">Terms</a>
+  </footer>
+
+  <div id="signupModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2>Create Account</h2>
+      
+      <form id="signupForm">
+        <div class="form-group">
+          <label for="fullName">Your Name</label>
+          <input type="text" id="fullName" required>
+          <div class="error" id="nameError">Please enter your name</div>
+        </div>
+        
+        <div class="form-group">
+          <label for="phone">Phone Number</label>
+          <input type="text" id="phone" placeholder="e.g., 0781234567" required>
+          <div class="info-text">It will be used in Login, Make sure that is correct.</div>
+          <div class="error" id="phoneError">Please enter a valid phone number</div>
+        </div>
+        
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" placeholder="Create a secure password" required>
+          <div class="info-text">Use at least 8 characters with a mix of letters and numbers.</div>
+          <div class="error" id="passwordError">Password must be at least 8 characters</div>
+        </div>
+        
+        <div class="loading">
+          <div class="loading-spinner"></div>
+          <p>Creating account...</p>
+        </div>
+        
+        <button type="submit">Create Account</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="popup" class="popup"></div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+    import { getFirestore, collection, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+    
+    const firebaseConfig = {
+      apiKey: "AIzaSyBgPFieysdvDl_Fx4nSZ95C25W7Wd6Xj7k",
+      authDomain: "aimebasketball.firebaseapp.com",
+      databaseURL: "https://aimebasketball-default-rtdb.firebaseio.com",
+      projectId: "aimebasketball",
+      storageBucket: "aimebasketball.firebasestorage.app",
+      messagingSenderId: "864360532917",
+      appId: "1:864360532917:web:c327893380d6fa2d30a7fc",
+      measurementId: "G-L4VRQQXHFM"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const loginForm = document.getElementById('loginForm');
+    const signupForm = document.getElementById('signupForm');
+    const showSignupBtn = document.getElementById('showSignup');
+    const modal = document.getElementById('signupModal');
+    const closeBtn = document.querySelector('.close');
+    const loadingEl = document.querySelector('.loading');
+    const popup = document.getElementById('popup');
+
+    // Check if elements exist before adding event listeners
+    if (showSignupBtn) {
+      showSignupBtn.addEventListener('click', () => {
+        modal.style.display = 'flex';
+      });
+    }
+
+    if (closeBtn) {
+      closeBtn.addEventListener('click', () => {
+        modal.style.display = 'none';
+        resetSignupForm();
+      });
+    }
+
+    window.addEventListener('click', (event) => {
+      if (event.target === modal) {
+        modal.style.display = 'none';
+        resetSignupForm();
+      }
+    });
+
+    if (loginForm) {
+      loginForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const loginPhoneEl = document.getElementById('loginPhone');
+        const passwordEl = document.getElementById('loginPassword');
+        
+        if (!loginPhoneEl || !passwordEl) {
+          showPopup('Form elements not found. Please try again.', 'error');
+          return;
+        }
+        
+        const phone = loginPhoneEl.value?.trim() || '';
+        const password = passwordEl.value?.trim() || '';
+        
+        if (!phone || !password) {
+          showPopup('Please enter both phone number and password', 'error');
+          return;
+        }
+        
+        if (!isValidPhone(phone)) {
+          showPopup('Invalid phone number format', 'error');
+          return;
+        }
+        
+        const email = `${phone}@gmail.com`;
+        
+        signInWithEmailAndPassword(auth, email, password)
+          .then((userCredential) => {
+            const user = userCredential.user;
+            
+            localStorage.setItem('genzuraUser', JSON.stringify({
+              uid: user.uid,
+              phone: phone,
+              email: email
+            }));
+            
+            showPopup('Login successful! Redirecting...', 'success');
+            
+            setTimeout(() => {
+              window.location.href = 'home.html';
+            }, 2000);
+          })
+          .catch((error) => {
+            showPopup('Login error: ' + error.message, 'error');
+          });
+      });
+    }
+
+    if (signupForm) {
+      signupForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        
+        if (!validateSignupForm()) return;
+        
+        loadingEl.style.display = 'block';
+        
+        const fullNameEl = document.getElementById('fullName');
+        const phoneEl = document.getElementById('phone');
+        const passwordEl = document.getElementById('password');
+        
+        if (!fullNameEl || !phoneEl || !passwordEl) {
+          loadingEl.style.display = 'none';
+          showPopup('Form elements not found. Please try again.', 'error');
+          return;
+        }
+        
+        const fullName = fullNameEl.value?.trim() || '';
+        const phone = phoneEl.value?.trim() || '';
+        const password = passwordEl.value?.trim() || '';
+        
+        if (!isValidPhone(phone)) {
+          loadingEl.style.display = 'none';
+          showPopup('Invalid phone number format', 'error');
+          return;
+        }
+        
+        const email = `${phone}@gmail.com`;
+        
+        createUserWithEmailAndPassword(auth, email, password)
+          .then((userCredential) => {
+            const user = userCredential.user;
+            
+            return setDoc(doc(collection(db, 'users'), user.uid), {
+              fullName,
+              phone,
+              createdAt: serverTimestamp()
+            });
+          })
+          .then(() => {
+            localStorage.setItem('genzuraUser', JSON.stringify({
+              uid: auth.currentUser.uid,
+              phone: phone,
+              email: email
+            }));
+            
+            loadingEl.style.display = 'none';
+            
+            showPopup('Account created successfully! Redirecting...', 'success');
+            
+            setTimeout(() => {
+              modal.style.display = 'none';
+              resetSignupForm();
+              window.location.href = 'home.html';
+            }, 2000);
+          })
+          .catch((error) => {
+            loadingEl.style.display = 'none';
+            showPopup('Error creating account: ' + error.message, 'error');
+          });
+      });
+    }
+
+    function validateSignupForm() {
+      let isValid = true;
+      
+      document.querySelectorAll('.error').forEach(el => {
+        el.style.display = 'none';
+      });
+      
+      const fullNameEl = document.getElementById('fullName');
+      const phoneEl = document.getElementById('phone');
+      const passwordEl = document.getElementById('password');
+      
+      if (!fullNameEl || !phoneEl || !passwordEl) {
+        showPopup('Form elements not found. Please try again.', 'error');
+        return false;
+      }
+      
+      const fullName = fullNameEl.value?.trim() || '';
+      if (!fullName) {
+        document.getElementById('nameError').style.display = 'block';
+        isValid = false;
+      }
+      
+      const phone = phoneEl.value?.trim() || '';
+      if (!phone) {
+        document.getElementById('phoneError').style.display = 'block';
+        document.getElementById('phoneError').textContent = 'Please enter your phone number';
+        isValid = false;
+      } else if (!isValidPhone(phone)) {
+        document.getElementById('phoneError').style.display = 'block';
+        document.getElementById('phoneError').textContent = 'Please enter a valid phone number';
+        isValid = false;
+      }
+      
+      const password = passwordEl.value?.trim() || '';
+      if (!password) {
+        document.getElementById('passwordError').style.display = 'block';
+        document.getElementById('passwordError').textContent = 'Please enter a password';
+        isValid = false;
+      } else if (password.length < 8) {
+        document.getElementById('passwordError').style.display = 'block';
+        document.getElementById('passwordError').textContent = 'Password must be at least 8 characters';
+        isValid = false;
+      }
+      
+      return isValid;
+    }
+
+    function isValidPhone(phone) {
+      // Check if phone is null or undefined first
+      if (!phone || typeof phone !== 'string' || phone.trim() === '') {
+        return false;
+      }
+      
+      // Clean the phone number by removing any non-digit characters
+      const cleanedPhone = phone.replace(/\D/g, '');
+      
+      // Check for Rwandan phone numbers (10 digits, starting with 07 or 08)
+      if (cleanedPhone.length === 10 && (cleanedPhone.startsWith('07') || cleanedPhone.startsWith('08'))) {
+        return true;
+      }
+      
+      // Check for international format (with +250)
+      if (cleanedPhone.length === 12 && cleanedPhone.startsWith('250')) {
+        return true;
+      }
+      
+      return false;
+    }
+
+    function resetSignupForm() {
+      const signupForm = document.getElementById('signupForm');
+      if (signupForm) {
+        signupForm.reset();
+      }
+      document.querySelectorAll('.error').forEach(el => {
+        el.style.display = 'none';
+      });
+      if (loadingEl) {
+        loadingEl.style.display = 'none';
+      }
+    }
+
+    function showPopup(message, type = 'info') {
+      const popup = document.getElementById('popup');
+      if (popup) {
+        popup.textContent = message;
+        popup.className = 'popup ' + type;
+        popup.style.display = 'block';
+        
+        setTimeout(() => {
+          popup.style.display = 'none';
+        }, 3000);
+      }
+    }
+
+    // Check for existing user on page load
+    window.addEventListener('DOMContentLoaded', () => {
+      const userData = localStorage.getItem('genzuraUser');
+      if (userData) {
+        showPopup('Welcome back! Redirecting to home...', 'success');
+        setTimeout(() => {
+          window.location.href = 'home.html';
+        }, 2000);
+      }
+    });
+  </script>
+</body>
+</html>
