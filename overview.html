@@ -1,0 +1,1415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GENZURA - Overview</title>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#000000">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+  <link rel="icon" type="image/png" href="https://i.ibb.co/mFqfcpPj/cropped-circle-image.png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: Arial, sans-serif;
+      background: #fff;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      position: relative;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+    
+    .container {
+      width: 100%;
+      padding: 20px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .header {
+      text-align: center;
+      margin-bottom: 20px;
+      position: relative;
+    }
+    
+    .logo {
+      font-size: 28px;
+      font-weight: bold;
+      color: #008000;
+      margin-bottom: 10px;
+    }
+    
+    .back-btn {
+      position: absolute;
+      left: 0;
+      top: 5px;
+      color: #000;
+      font-size: 20px;
+    }
+    
+    .user-welcome {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    
+    .user-name {
+      font-weight: bold;
+      font-size: 18px;
+      color: #000;
+    }
+    
+    .revenue-section {
+      background: #f9f9f9;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      position: relative;
+    }
+    
+    .revenue-label {
+      font-size: 14px;
+      color: #555;
+      margin-bottom: 5px;
+    }
+    
+    .revenue-input-container {
+      display: flex;
+      align-items: center;
+    }
+    
+    .revenue-input {
+      flex: 1;
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 16px;
+    }
+    
+    .revenue-input:disabled {
+      background-color: #f0f0f0;
+      color: #555;
+    }
+    
+    .currency {
+      margin-left: 10px;
+      font-weight: bold;
+      color: #008000;
+    }
+    
+    .change-link {
+      margin-left: 15px;
+      color: #008000;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    
+    .add-revenue-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 14px;
+      background: black;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 15px;
+    }
+    
+    .analytics-section {
+      margin-top: 25px;
+    }
+    
+    .section-title {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 15px;
+      color: #000;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .tabs {
+      display: flex;
+      margin-bottom: 15px;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .tab {
+      padding: 10px 15px;
+      cursor: pointer;
+      font-weight: bold;
+      color: #555;
+      border-bottom: 2px solid transparent;
+    }
+    
+    .tab.active {
+      color: #008000;
+      border-bottom: 2px solid #008000;
+    }
+    
+    .tab-content {
+      display: none;
+    }
+    
+    .tab-content.active {
+      display: block;
+    }
+    
+    .calendar {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 5px;
+      margin-bottom: 15px;
+    }
+    
+    .calendar-header {
+      grid-column: span 7;
+      text-align: center;
+      font-weight: bold;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .calendar-nav {
+      background: #f0f0f0;
+      border: none;
+      border-radius: 4px;
+      padding: 5px 10px;
+      cursor: pointer;
+    }
+    
+    .weekday {
+      text-align: center;
+      font-weight: bold;
+      font-size: 12px;
+      color: #555;
+    }
+    
+    .day {
+      text-align: center;
+      padding: 8px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    
+    .day.current {
+      background: #008000;
+      color: white;
+    }
+    
+    .day.has-data {
+      background: #e0f7e0;
+      color: #008000;
+    }
+    
+    .day.future {
+      color: #ccc;
+      cursor: not-allowed;
+    }
+    
+    .daily-details {
+      background: #f9f9f9;
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 15px;
+    }
+    
+    .daily-total {
+      font-weight: bold;
+      margin-bottom: 10px;
+      color: #008000;
+    }
+    
+    .expense-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .expense-category {
+      font-weight: bold;
+      color: #333;
+    }
+    
+    .expense-amount {
+      color: #008000;
+    }
+    
+    .expense-description {
+      font-size: 12px;
+      color: #666;
+      margin-top: 2px;
+    }
+    
+    .monthly-summary {
+      background: #f9f9f9;
+      padding: 15px;
+      border-radius: 8px;
+    }
+    
+    .category-summary {
+      margin-bottom: 15px;
+    }
+    
+    .category-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 5px;
+    }
+    
+    .category-name {
+      font-weight: bold;
+      color: #333;
+    }
+    
+    .category-amount {
+      color: #008000;
+    }
+    
+    .progress-bar {
+      height: 8px;
+      background: #e0e0e0;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    
+    .progress-fill {
+      height: 100%;
+      background: #008000;
+      border-radius: 4px;
+    }
+    
+    .month-total {
+      margin-top: 15px;
+      padding-top: 15px;
+      border-top: 1px solid #eee;
+      font-weight: bold;
+      display: flex;
+      justify-content: space-between;
+    }
+    
+    .new-month-btn {
+      width: 100%;
+      padding: 14px;
+      background: #008000;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 15px;
+    }
+    
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    
+    .modal-content {
+      background-color: white;
+      padding: 25px;
+      border-radius: 8px;
+      width: 90%;
+      max-width: 400px;
+      max-height: 90%;
+      overflow-y: auto;
+    }
+    
+    .close {
+      float: right;
+      font-size: 24px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    
+    .form-group {
+      margin-bottom: 15px;
+      text-align: left;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 14px;
+      color: #333;
+    }
+    
+    .form-group input, .form-group textarea {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 16px;
+    }
+    
+    .error {
+      color: red;
+      font-size: 12px;
+      margin-top: 5px;
+      display: none;
+    }
+    
+    .loading {
+      display: none;
+      text-align: center;
+      margin: 10px 0;
+    }
+    
+    .loading-spinner {
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #008000;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .countdown {
+      text-align: center;
+      margin: 15px 0;
+      font-size: 18px;
+      font-weight: bold;
+      color: #008000;
+    }
+    
+    .warning-text {
+      color: #f44336;
+      font-size: 14px;
+      margin: 10px 0;
+      text-align: center;
+    }
+    
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: white;
+      display: flex;
+      justify-content: space-around;
+      padding: 10px;
+      border-top: 1px solid #eee;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+    
+    .nav-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: #666;
+      text-decoration: none;
+      font-size: 12px;
+    }
+    
+    .nav-btn.active {
+      color: #008000;
+    }
+    
+    .nav-icon {
+      font-size: 20px;
+      margin-bottom: 4px;
+    }
+    
+    .popup {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #333;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 6px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      z-index: 1001;
+      display: none;
+      max-width: 90%;
+      text-align: center;
+    }
+    
+    .popup.success {
+      background-color: #4CAF50;
+    }
+    
+    .popup.error {
+      background-color: #f44336;
+    }
+    
+    .popup.info {
+      background-color: #2196F3;
+    }
+    
+    .popup.warning {
+      background-color: #FF9800;
+    }
+    
+    @media (max-width: 480px) {
+      .container {
+        padding: 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <a href="home.html" class="back-btn">
+        <i class="fas fa-arrow-left"></i>
+      </a>
+      <div class="logo">GENZURA</div>
+    </div>
+    
+    <div class="user-welcome">
+      <div class="user-name" id="userName">Welcome, User</div>
+    </div>
+    
+    <div class="revenue-section">
+      <div class="revenue-label">Monthly Revenue</div>
+      <div class="revenue-input-container">
+        <input type="number" id="revenueInput" class="revenue-input" placeholder="Enter your monthly revenue" min="0">
+        <div class="currency">RWF</div>
+        <div class="change-link" id="changeRevenueLink" style="display: none;">Change</div>
+      </div>
+      <button id="confirmRevenueBtn" class="add-revenue-btn">CONFIRM REVENUE</button>
+      <button id="addRevenueBtn" class="add-revenue-btn" style="display: none;">
+        <i class="fas fa-plus"></i> Add Revenue
+      </button>
+    </div>
+    
+    <div class="analytics-section">
+      <div class="tabs">
+        <div class="tab active" data-tab="daily">Daily Usage</div>
+        <div class="tab" data-tab="monthly">Monthly Usage</div>
+      </div>
+      
+      <div class="tab-content active" id="dailyTab">
+        <div class="calendar-header">
+          <button class="calendar-nav" id="prevMonth"><i class="fas fa-chevron-left"></i></button>
+          <div id="currentMonth">June 2023</div>
+          <button class="calendar-nav" id="nextMonth"><i class="fas fa-chevron-right"></i></button>
+        </div>
+        
+        <div class="calendar" id="calendar">
+          <!-- Calendar will be generated by JavaScript -->
+        </div>
+        
+        <div class="daily-details" id="dailyDetails">
+          <div class="loading">
+            <div class="loading-spinner"></div>
+            <p>Select a date to view details</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="tab-content" id="monthlyTab">
+        <div class="monthly-summary" id="monthlySummary">
+          <div class="loading">
+            <div class="loading-spinner"></div>
+            <p>Loading monthly summary...</p>
+          </div>
+        </div>
+        
+        <button id="newMonthBtn" class="new-month-btn" style="display: none;">START A NEW MONTH</button>
+      </div>
+    </div>
+    
+    <div class="loading" id="mainLoading">
+      <div class="loading-spinner"></div>
+      <p>Loading your data...</p>
+    </div>
+  </div>
+  
+  <!-- Revenue Confirmation Modal -->
+  <div id="confirmModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2>Confirm Revenue</h2>
+      
+      <p class="warning-text">Warning: Once confirmed, you won't be able to change this revenue for 2 days!</p>
+      <p>Are you sure you want to set your monthly revenue to <span id="confirmAmount" class="currency">0 RWF</span>?</p>
+      
+      <div style="display: flex; gap: 10px; margin-top: 20px;">
+        <button type="button" id="finalConfirmBtn" style="flex: 1;">Yes, Confirm</button>
+        <button type="button" id="cancelConfirmBtn" style="flex: 1; background: #ccc;">Cancel</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Change Revenue Modal -->
+  <div id="changeModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2>Change Revenue</h2>
+      
+      <p>You've requested to change your monthly revenue. You can make changes in:</p>
+      
+      <div class="countdown" id="changeCountdown">47:59:59</div>
+      
+      <button type="button" id="okChangeBtn" style="width: 100%;">OK</button>
+    </div>
+  </div>
+  
+  <!-- Add Revenue Modal -->
+  <div id="addRevenueModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2>Add Revenue</h2>
+      
+      <form id="addRevenueForm">
+        <div class="form-group">
+          <label for="additionalRevenue">Additional Amount (RWF)</label>
+          <input type="number" id="additionalRevenue" min="1" required>
+          <div class="error" id="amountError">Please enter a valid amount</div>
+        </div>
+        
+        <div class="form-group">
+          <label for="revenueSource">Source/Reason</label>
+          <textarea id="revenueSource" rows="3" placeholder="Where did this revenue come from?" required></textarea>
+          <div class="error" id="sourceError">Please enter a source or reason</div>
+        </div>
+        
+        <div class="loading">
+          <div class="loading-spinner"></div>
+          <p>Adding revenue...</p>
+        </div>
+        
+        <button type="submit">Add Revenue</button>
+      </form>
+    </div>
+  </div>
+  
+  <div class="bottom-nav">
+    <a href="home.html" class="nav-btn">
+      <i class="fas fa-home nav-icon"></i>
+      <span>Home</span>
+    </a>
+    <a href="overview.html" class="nav-btn active">
+      <i class="fas fa-chart-pie nav-icon"></i>
+      <span>Overview</span>
+    </a>
+    <a href="stock.html" class="nav-btn">
+      <i class="fas fa-boxes nav-icon"></i>
+      <span>Stock</span>
+    </a>
+    <a href="notifications.html" class="nav-btn">
+      <i class="fas fa-bell nav-icon"></i>
+      <span>Notifications</span>
+    </a>
+  </div>
+
+  <div id="popup" class="popup"></div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+    import { getFirestore, collection, doc, setDoc, getDoc, getDocs, addDoc, query, where, orderBy, onSnapshot, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+    
+    const firebaseConfig = {
+      apiKey: "AIzaSyBgPFieysdvDl_Fx4nSZ95C25W7Wd6Xj7k",
+      authDomain: "aimebasketball.firebaseapp.com",
+      databaseURL: "https://aimebasketball-default-rtdb.firebaseio.com",
+      projectId: "aimebasketball",
+      storageBucket: "aimebasketball.firebasestorage.app",
+      messagingSenderId: "864360532917",
+      appId: "1:864360532917:web:c327893380d6fa2d30a7fc",
+      measurementId: "G-L4VRQQXHFM"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // DOM Elements
+    const userNameEl = document.getElementById('userName');
+    const revenueInput = document.getElementById('revenueInput');
+    const changeRevenueLink = document.getElementById('changeRevenueLink');
+    const confirmRevenueBtn = document.getElementById('confirmRevenueBtn');
+    const addRevenueBtn = document.getElementById('addRevenueBtn');
+    const confirmModal = document.getElementById('confirmModal');
+    const changeModal = document.getElementById('changeModal');
+    const addRevenueModal = document.getElementById('addRevenueModal');
+    const closeBtns = document.querySelectorAll('.close');
+    const finalConfirmBtn = document.getElementById('finalConfirmBtn');
+    const cancelConfirmBtn = document.getElementById('cancelConfirmBtn');
+    const okChangeBtn = document.getElementById('okChangeBtn');
+    const addRevenueForm = document.getElementById('addRevenueForm');
+    const confirmAmountEl = document.getElementById('confirmAmount');
+    const changeCountdownEl = document.getElementById('changeCountdown');
+    const calendarEl = document.getElementById('calendar');
+    const currentMonthEl = document.getElementById('currentMonth');
+    const prevMonthBtn = document.getElementById('prevMonth');
+    const nextMonthBtn = document.getElementById('nextMonth');
+    const dailyDetailsEl = document.getElementById('dailyDetails');
+    const monthlySummaryEl = document.getElementById('monthlySummary');
+    const newMonthBtn = document.getElementById('newMonthBtn');
+    const tabs = document.querySelectorAll('.tab');
+    const tabContents = document.querySelectorAll('.tab-content');
+    const mainLoading = document.getElementById('mainLoading');
+    
+    // State variables
+    let currentUser = null;
+    let userData = null;
+    let monthlyData = null;
+    let expensesData = [];
+    let currentDate = new Date();
+    let selectedDate = new Date();
+    let changeTimeout = null;
+    let countdownInterval = null;
+
+    // Initialize the page
+    function init() {
+      showLoading(true);
+      
+      // Check authentication state
+      onAuthStateChanged(auth, async (user) => {
+        if (user) {
+          currentUser = user;
+          await loadUserData();
+          await loadMonthlyData();
+          await loadExpensesData();
+          setupEventListeners();
+          generateCalendar(currentDate);
+          showLoading(false);
+        } else {
+          // Redirect to login if not authenticated
+          window.location.href = 'login.html';
+        }
+      });
+    }
+    
+    // Set up event listeners
+    function setupEventListeners() {
+      // Confirm revenue button
+      confirmRevenueBtn.addEventListener('click', () => {
+        const amount = parseFloat(revenueInput.value);
+        if (isNaN(amount) || amount <= 0) {
+          showError('Please enter a valid revenue amount');
+          return;
+        }
+        
+        confirmAmountEl.textContent = `${amount.toLocaleString()} RWF`;
+        confirmModal.style.display = 'flex';
+      });
+      
+      // Final confirm button
+      finalConfirmBtn.addEventListener('click', async () => {
+        const amount = parseFloat(revenueInput.value);
+        await setMonthlyRevenue(amount);
+        confirmModal.style.display = 'none';
+      });
+      
+      // Cancel confirm button
+      cancelConfirmBtn.addEventListener('click', () => {
+        confirmModal.style.display = 'none';
+      });
+      
+      // Change revenue link
+      changeRevenueLink.addEventListener('click', () => {
+        showChangeModal();
+      });
+      
+      // OK change button
+      okChangeBtn.addEventListener('click', () => {
+        changeModal.style.display = 'none';
+      });
+      
+      // Add revenue button
+      addRevenueBtn.addEventListener('click', () => {
+        addRevenueModal.style.display = 'flex';
+      });
+      
+      // Add revenue form
+      addRevenueForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (validateAddRevenueForm()) {
+          await addAdditionalRevenue();
+        }
+      });
+      
+      // Calendar navigation
+      prevMonthBtn.addEventListener('click', () => {
+        currentDate.setMonth(currentDate.getMonth() - 1);
+        generateCalendar(currentDate);
+      });
+      
+      nextMonthBtn.addEventListener('click', () => {
+        currentDate.setMonth(currentDate.getMonth() + 1);
+        generateCalendar(currentDate);
+      });
+      
+      // New month button
+      newMonthBtn.addEventListener('click', async () => {
+        await startNewMonth();
+      });
+      
+      // Close modals
+      closeBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          confirmModal.style.display = 'none';
+          changeModal.style.display = 'none';
+          addRevenueModal.style.display = 'none';
+        });
+      });
+      
+      // Click outside modal to close
+      window.addEventListener('click', (event) => {
+        if (event.target === confirmModal) confirmModal.style.display = 'none';
+        if (event.target === changeModal) changeModal.style.display = 'none';
+        if (event.target === addRevenueModal) addRevenueModal.style.display = 'none';
+      });
+      
+      // Tab switching
+      tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          const tabId = tab.dataset.tab;
+          
+          // Update active tab
+          tabs.forEach(t => t.classList.remove('active'));
+          tab.classList.add('active');
+          
+          // Show correct content
+          tabContents.forEach(content => content.classList.remove('active'));
+          document.getElementById(`${tabId}Tab`).classList.add('active');
+          
+          // If monthly tab, refresh monthly view
+          if (tabId === 'monthly') {
+            displayMonthlySummary();
+          }
+        });
+      });
+    }
+    
+    // Load user data from Firestore
+    async function loadUserData() {
+      try {
+        const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+        if (userDoc.exists()) {
+          userData = userDoc.data();
+          userNameEl.textContent = `Welcome, ${userData.fullName || 'User'}`;
+        } else {
+          console.error('User document not found');
+        }
+      } catch (error) {
+        console.error('Error loading user data:', error);
+        showError('Failed to load user data');
+      }
+    }
+    
+    // Load monthly data from Firestore
+    async function loadMonthlyData() {
+      try {
+        const q = query(
+          collection(db, 'users', currentUser.uid, 'monthly'),
+          orderBy('startDate', 'desc'),
+          limit(1)
+        );
+        
+        const querySnapshot = await getDocs(q);
+        if (!querySnapshot.empty) {
+          monthlyData = querySnapshot.docs[0].data();
+          monthlyData.id = querySnapshot.docs[0].id;
+          
+          // Check if revenue is set
+          if (monthlyData.revenue && monthlyData.revenue > 0) {
+            revenueInput.value = monthlyData.revenue;
+            revenueInput.disabled = true;
+            confirmRevenueBtn.style.display = 'none';
+            changeRevenueLink.style.display = 'block';
+            addRevenueBtn.style.display = 'block';
+            
+            // Check if change is allowed
+            if (monthlyData.revenueLockedUntil) {
+              const lockUntil = new Date(monthlyData.revenueLockedUntil);
+              if (new Date() < lockUntil) {
+                // Still locked, start countdown
+                startChangeCountdown(lockUntil);
+              }
+            }
+          }
+        } else {
+          // No monthly data found, allow setting revenue
+          revenueInput.disabled = false;
+          confirmRevenueBtn.style.display = 'block';
+          changeRevenueLink.style.display = 'none';
+          addRevenueBtn.style.display = 'none';
+        }
+      } catch (error) {
+        console.error('Error loading monthly data:', error);
+        showError('Failed to load monthly data');
+      }
+    }
+    
+    // Load expenses data from Firestore
+    async function loadExpensesData() {
+      try {
+        const q = query(
+          collection(db, 'users', currentUser.uid, 'usedmoney'),
+          orderBy('timestamp', 'desc')
+        );
+        
+        // Real-time listener for expenses changes
+        const unsubscribe = onSnapshot(q, (querySnapshot) => {
+          expensesData = [];
+          querySnapshot.forEach((doc) => {
+            expensesData.push({ id: doc.id, ...doc.data() });
+          });
+          
+          // Update UI with new data
+          generateCalendar(currentDate);
+          displayMonthlySummary();
+          
+          // Check for notifications
+          checkExpenseNotifications();
+        });
+        
+      } catch (error) {
+        console.error('Error loading expenses:', error);
+        showError('Failed to load expenses data');
+      }
+    }
+    
+    // Set monthly revenue
+    async function setMonthlyRevenue(amount) {
+      try {
+        showLoading(true);
+        
+        const monthlyData = {
+          revenue: amount,
+          startDate: new Date(),
+          revenueLockedUntil: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000), // Lock for 2 days
+          createdAt: new Date(),
+          updatedAt: new Date()
+        };
+        
+        // Add to monthly collection
+        await setDoc(doc(collection(db, 'users', currentUser.uid, 'monthly')), monthlyData);
+        
+        // Update UI
+        revenueInput.disabled = true;
+        confirmRevenueBtn.style.display = 'none';
+        changeRevenueLink.style.display = 'block';
+        addRevenueBtn.style.display = 'block';
+        
+        // Create notification
+        await addDoc(collection(db, 'users', currentUser.uid, 'notifications'), {
+          title: 'New Month Started',
+          message: `Your monthly revenue has been set to ${amount.toLocaleString()} RWF`,
+          type: 'monthly',
+          read: false,
+          timestamp: new Date()
+        });
+        
+        showPopup('Monthly revenue set successfully!', 'success');
+        showLoading(false);
+        
+      } catch (error) {
+        console.error('Error setting monthly revenue:', error);
+        showError('Failed to set monthly revenue');
+        showLoading(false);
+      }
+    }
+    
+    // Add additional revenue
+    async function addAdditionalRevenue() {
+      try {
+        showFormLoading(true);
+        
+        const amount = parseFloat(document.getElementById('additionalRevenue').value);
+        const source = document.getElementById('revenueSource').value.trim();
+        
+        // Update monthly data
+        const newRevenue = monthlyData.revenue + amount;
+        await updateDoc(doc(db, 'users', currentUser.uid, 'monthly', monthlyData.id), {
+          revenue: newRevenue,
+          updatedAt: new Date()
+        });
+        
+        // Add revenue history
+        await addDoc(collection(db, 'users', currentUser.uid, 'revenueHistory'), {
+          amount: amount,
+          source: source,
+          timestamp: new Date()
+        });
+        
+        // Update UI
+        revenueInput.value = newRevenue;
+        
+        // Create notification
+        await addDoc(collection(db, 'users', currentUser.uid, 'notifications'), {
+          title: 'Revenue Added',
+          message: `Added ${amount.toLocaleString()} RWF to your monthly revenue`,
+          type: 'revenue',
+          read: false,
+          timestamp: new Date()
+        });
+        
+        showPopup('Revenue added successfully!', 'success');
+        addRevenueModal.style.display = 'none';
+        addRevenueForm.reset();
+        showFormLoading(false);
+        
+      } catch (error) {
+        console.error('Error adding revenue:', error);
+        showError('Failed to add revenue');
+        showFormLoading(false);
+      }
+    }
+    
+    // Start new month
+    async function startNewMonth() {
+      try {
+        showLoading(true);
+        
+        // Archive current month
+        await updateDoc(doc(db, 'users', currentUser.uid, 'monthly', monthlyData.id), {
+          archived: true,
+          endDate: new Date(),
+          updatedAt: new Date()
+        });
+        
+        // Reset UI for new month
+        revenueInput.value = '';
+        revenueInput.disabled = false;
+        confirmRevenueBtn.style.display = 'block';
+        changeRevenueLink.style.display = 'none';
+        addRevenueBtn.style.display = 'none';
+        newMonthBtn.style.display = 'none';
+        
+        // Create notification
+        await addDoc(collection(db, 'users', currentUser.uid, 'notifications'), {
+          title: 'Month Completed',
+          message: `Your monthly period has ended. Total spent: ${calculateTotalSpent().toLocaleString()} RWF`,
+          type: 'monthly',
+          read: false,
+          timestamp: new Date()
+        });
+        
+        showPopup('New month started! Please set your new revenue.', 'success');
+        showLoading(false);
+        
+      } catch (error) {
+        console.error('Error starting new month:', error);
+        showError('Failed to start new month');
+        showLoading(false);
+      }
+    }
+    
+    // Show change modal with countdown
+    function showChangeModal() {
+      if (monthlyData.revenueLockedUntil) {
+        const lockUntil = new Date(monthlyData.revenueLockedUntil);
+        if (new Date() < lockUntil) {
+          // Still locked, show countdown
+          startChangeCountdown(lockUntil);
+          changeModal.style.display = 'flex';
+          return;
+        }
+      }
+      
+      // Not locked, allow change
+      revenueInput.disabled = false;
+      confirmRevenueBtn.style.display = 'block';
+      changeRevenueLink.style.display = 'none';
+    }
+    
+    // Start countdown for revenue change
+    function startChangeCountdown(lockUntil) {
+      if (countdownInterval) {
+        clearInterval(countdownInterval);
+      }
+      
+      function updateCountdown() {
+        const now = new Date();
+        const diff = lockUntil - now;
+        
+        if (diff <= 0) {
+          clearInterval(countdownInterval);
+          changeCountdownEl.textContent = '00:00:00';
+          revenueInput.disabled = false;
+          confirmRevenueBtn.style.display = 'block';
+          changeRevenueLink.style.display = 'none';
+          changeModal.style.display = 'none';
+          return;
+        }
+        
+        const hours = Math.floor(diff / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+        
+        changeCountdownEl.textContent = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+      }
+      
+      updateCountdown();
+      countdownInterval = setInterval(updateCountdown, 1000);
+    }
+    
+    // Generate calendar
+    function generateCalendar(date) {
+      const year = date.getFullYear();
+      const month = date.getMonth();
+      
+      // Set current month text
+      currentMonthEl.textContent = new Date(year, month, 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+      
+      // Get first day of month and number of days
+      const firstDay = new Date(year, month, 1).getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      
+      // Clear previous calendar
+      calendarEl.innerHTML = '';
+      
+      // Add weekday headers
+      const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      weekdays.forEach(day => {
+        const dayEl = document.createElement('div');
+        dayEl.className = 'weekday';
+        dayEl.textContent = day;
+        calendarEl.appendChild(dayEl);
+      });
+      
+      // Add empty cells for days before first day of month
+      for (let i = 0; i < firstDay; i++) {
+        const emptyEl = document.createElement('div');
+        calendarEl.appendChild(emptyEl);
+      }
+      
+      // Add days of month
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dayEl = document.createElement('div');
+        dayEl.className = 'day';
+        dayEl.textContent = day;
+        
+        const cellDate = new Date(year, month, day);
+        cellDate.setHours(0, 0, 0, 0);
+        
+        // Check if day has expense data
+        const hasData = expensesData.some(expense => {
+          const expenseDate = new Date(expense.timestamp?.toDate() || expense.date);
+          expenseDate.setHours(0, 0, 0, 0);
+          return expenseDate.getTime() === cellDate.getTime();
+        });
+        
+        // Check if day is today
+        if (cellDate.getTime() === today.getTime()) {
+          dayEl.classList.add('current');
+          selectedDate = cellDate;
+          showDailyDetails(selectedDate);
+        }
+        
+        // Check if day is in future
+        if (cellDate > today) {
+          dayEl.classList.add('future');
+        } else if (hasData) {
+          dayEl.classList.add('has-data');
+        }
+        
+        // Add click event
+        if (cellDate <= today) {
+          dayEl.addEventListener('click', () => {
+            document.querySelectorAll('.day.current').forEach(el => {
+              el.classList.remove('current');
+            });
+            dayEl.classList.add('current');
+            selectedDate = cellDate;
+            showDailyDetails(selectedDate);
+          });
+        }
+        
+        calendarEl.appendChild(dayEl);
+      }
+    }
+    
+    // Show daily details
+    function showDailyDetails(date) {
+      const dayExpenses = expensesData.filter(expense => {
+        const expenseDate = new Date(expense.timestamp?.toDate() || expense.date);
+        expenseDate.setHours(0, 0, 0, 0);
+        return expenseDate.getTime() === date.getTime();
+      });
+      
+      if (dayExpenses.length === 0) {
+        dailyDetailsEl.innerHTML = `
+          <p>No expenses recorded for ${date.toLocaleDateString()}</p>
+        `;
+        return;
+      }
+      
+      const total = dayExpenses.reduce((sum, expense) => sum + expense.amount, 0);
+      
+      let detailsHTML = `
+        <div class="daily-total">Total: ${total.toLocaleString()} RWF</div>
+      `;
+      
+      dayExpenses.forEach(expense => {
+        detailsHTML += `
+          <div class="expense-item">
+            <div>
+              <div class="expense-category">${expense.category}</div>
+              <div class="expense-description">${expense.description || expense.product || 'No description'}</div>
+            </div>
+            <div class="expense-amount">${expense.amount.toLocaleString()} RWF</div>
+          </div>
+        `;
+      });
+      
+      dailyDetailsEl.innerHTML = detailsHTML;
+    }
+    
+    // Display monthly summary
+    function displayMonthlySummary() {
+      if (!monthlyData) {
+        monthlySummaryEl.innerHTML = `
+          <p>No monthly data available. Please set your monthly revenue first.</p>
+        `;
+        return;
+      }
+      
+      const totalSpent = calculateTotalSpent();
+      const remaining = monthlyData.revenue - totalSpent;
+      const serviceTotal = calculateCategoryTotal('service');
+      const productTotal = calculateCategoryTotal('product');
+      const stockTotal = calculateCategoryTotal('stock');
+      
+      let summaryHTML = `
+        <div class="category-summary">
+          <div class="category-header">
+            <span class="category-name">Service</span>
+            <span class="category-amount">${serviceTotal.toLocaleString()} RWF</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: ${(serviceTotal / monthlyData.revenue) * 100}%"></div>
+          </div>
+        </div>
+        
+        <div class="category-summary">
+          <div class="category-header">
+            <span class="category-name">Product</span>
+            <span class="category-amount">${productTotal.toLocaleString()} RWF</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: ${(productTotal / monthlyData.revenue) * 100}%"></div>
+          </div>
+        </div>
+        
+        <div class="category-summary">
+          <div class="category-header">
+            <span class="category-name">Stock</span>
+            <span class="category-amount">${stockTotal.toLocaleString()} RWF</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: ${(stockTotal / monthlyData.revenue) * 100}%"></div>
+          </div>
+        </div>
+        
+        <div class="month-total">
+          <span>Total Spent:</span>
+          <span>${totalSpent.toLocaleString()} RWF</span>
+        </div>
+        
+        <div class="month-total">
+          <span>Remaining:</span>
+          <span style="color: ${remaining < 0 ? '#f44336' : '#008000'}">${remaining.toLocaleString()} RWF</span>
+        </div>
+      `;
+      
+      monthlySummaryEl.innerHTML = summaryHTML;
+      
+      // Show new month button if month is completed (based on start date + 30 days)
+      const monthEnd = new Date(monthlyData.startDate.toDate());
+      monthEnd.setDate(monthEnd.getDate() + 30);
+      
+      if (new Date() > monthEnd) {
+        newMonthBtn.style.display = 'block';
+      }
+    }
+    
+    // Calculate total spent
+    function calculateTotalSpent() {
+      return expensesData.reduce((sum, expense) => sum + expense.amount, 0);
+    }
+    
+    // Calculate category total
+    function calculateCategoryTotal(category) {
+      return expensesData
+        .filter(expense => expense.category === category)
+        .reduce((sum, expense) => sum + expense.amount, 0);
+    }
+    
+    // Check for expense notifications
+    async function checkExpenseNotifications() {
+      if (!monthlyData) return;
+      
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      // Check for daily expense notification
+      const todayExpenses = expensesData.filter(expense => {
+        const expenseDate = new Date(expense.timestamp?.toDate() || expense.date);
+        expenseDate.setHours(0, 0, 0, 0);
+        return expenseDate.getTime() === today.getTime();
+      });
+      
+      if (todayExpenses.length > 0) {
+        const dailyTotal = todayExpenses.reduce((sum, expense) => sum + expense.amount, 0);
+        
+        // Check if notification already sent today
+        const notificationQuery = query(
+          collection(db, 'users', currentUser.uid, 'notifications'),
+          where('type', '==', 'daily'),
+          where('timestamp', '>=', new Date(today))
+        );
+        
+        const existingNotifications = await getDocs(notificationQuery);
+        
+        if (existingNotifications.empty) {
+          // Create daily notification
+          await addDoc(collection(db, 'users', currentUser.uid, 'notifications'), {
+            title: 'Daily Expenses',
+            message: `You spent ${dailyTotal.toLocaleString()} RWF today`,
+            type: 'daily',
+            read: false,
+            timestamp: new Date()
+          });
+        }
+      }
+      
+      // Check for low balance notification
+      const totalSpent = calculateTotalSpent();
+      const remaining = monthlyData.revenue - totalSpent;
+      
+      if (remaining < (monthlyData.revenue * 0.2)) {
+        // Check if notification already sent for low balance
+        const notificationQuery = query(
+          collection(db, 'users', currentUser.uid, 'notifications'),
+          where('type', '==', 'low_balance'),
+          where('timestamp', '>=', new Date(Date.now() - 24 * 60 * 60 * 1000)) // Last 24 hours
+        );
+        
+        const existingNotifications = await getDocs(notificationQuery);
+        
+        if (existingNotifications.empty && remaining > 0) {
+          // Create low balance notification
+          await addDoc(collection(db, 'users', currentUser.uid, 'notifications'), {
+            title: 'Low Balance Alert',
+            message: `Your remaining balance is low: ${remaining.toLocaleString()} RWF`,
+            type: 'low_balance',
+            read: false,
+            timestamp: new Date()
+          });
+        } else if (remaining <= 0 && existingNotifications.empty) {
+          // Create negative balance notification
+          await addDoc(collection(db, 'users', currentUser.uid, 'notifications'), {
+            title: 'Negative Balance Alert',
+            message: `Your balance is negative: ${remaining.toLocaleString()} RWF`,
+            type: 'negative_balance',
+            read: false,
+            timestamp: new Date()
+          });
+        }
+      }
+    }
+    
+    // Validate add revenue form
+    function validateAddRevenueForm() {
+      let isValid = true;
+      
+      // Reset error messages
+      document.querySelectorAll('#addRevenueForm .error').forEach(el => {
+        el.style.display = 'none';
+      });
+      
+      // Validate amount
+      const amount = parseFloat(document.getElementById('additionalRevenue').value);
+      if (isNaN(amount) || amount <= 0) {
+        document.getElementById('amountError').style.display = 'block';
+        isValid = false;
+      }
+      
+      // Validate source
+      const source = document.getElementById('revenueSource').value.trim();
+      if (!source) {
+        document.getElementById('sourceError').style.display = 'block';
+        isValid = false;
+      }
+      
+      return isValid;
+    }
+    
+    // Show loading state
+    function showLoading(show) {
+      if (show) {
+        mainLoading.style.display = 'block';
+      } else {
+        mainLoading.style.display = 'none';
+      }
+    }
+    
+    // Show form loading state
+    function showFormLoading(show) {
+      const loadingElement = document.querySelector('#addRevenueForm .loading');
+      if (loadingElement) {
+        loadingElement.style.display = show ? 'block' : 'none';
+      }
+    }
+    
+    // Show error message
+    function showError(message) {
+      showPopup(message, 'error');
+    }
+    
+    // Show popup message
+    function showPopup(message, type = 'info') {
+      const popup = document.getElementById('popup');
+      if (popup) {
+        popup.textContent = message;
+        popup.className = 'popup ' + type;
+        popup.style.display = 'block';
+        
+        setTimeout(() => {
+          popup.style.display = 'none';
+        }, 3000);
+      }
+    }
+    
+    // Initialize the application
+    init();
+  </script>
+</body>
+</html>
