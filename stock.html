@@ -1,0 +1,1230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GENZURA - Stock</title>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#000000">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+  <link rel="icon" type="image/png" href="https://i.ibb.co/mFqfcpPj/cropped-circle-image.png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: Arial, sans-serif;
+      background: #fff;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      position: relative;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+    
+    .container {
+      width: 100%;
+      padding: 20px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .header {
+      text-align: center;
+      margin-bottom: 20px;
+      position: relative;
+    }
+    
+    .logo {
+      font-size: 28px;
+      font-weight: bold;
+      color: #008000;
+      margin-bottom: 10px;
+    }
+    
+    .back-btn {
+      position: absolute;
+      left: 0;
+      top: 5px;
+      color: #000;
+      font-size: 20px;
+    }
+    
+    .search-bar {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0 20px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 16px;
+    }
+    
+    .tabs {
+      display: flex;
+      margin-bottom: 20px;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .tab {
+      padding: 10px 15px;
+      cursor: pointer;
+      font-weight: bold;
+      color: #555;
+      border-bottom: 2px solid transparent;
+    }
+    
+    .tab.active {
+      color: #008000;
+      border-bottom: 2px solid #008000;
+    }
+    
+    .tab-content {
+      display: none;
+    }
+    
+    .tab-content.active {
+      display: block;
+    }
+    
+    .stock-summary {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      background: #f9f9f9;
+      padding: 15px;
+      border-radius: 6px;
+    }
+    
+    .summary-item {
+      text-align: center;
+    }
+    
+    .summary-value {
+      font-size: 18px;
+      font-weight: bold;
+      color: #008000;
+    }
+    
+    .summary-label {
+      font-size: 14px;
+      color: #555;
+    }
+    
+    .stock-list {
+      margin-bottom: 25px;
+    }
+    
+    .stock-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px;
+      border-bottom: 1px solid #eee;
+      align-items: center;
+    }
+    
+    .stock-info {
+      flex: 1;
+    }
+    
+    .stock-name {
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+    
+    .stock-details {
+      font-size: 14px;
+      color: #555;
+    }
+    
+    .days-in-stock {
+      font-size: 12px;
+      padding: 2px 6px;
+      border-radius: 10px;
+      background: #2196F3;
+      color: white;
+      margin-top: 5px;
+      display: inline-block;
+    }
+    
+    .days-in-stock.warning {
+      background: #FF9800;
+    }
+    
+    .days-in-stock.expired {
+      background: #f44336;
+    }
+    
+    .days-in-stock.finished {
+      background: #9e9e9e;
+      text-decoration: underline;
+    }
+    
+    .stock-actions {
+      display: flex;
+      gap: 10px;
+    }
+    
+    .action-btn {
+      background: #f0f0f0;
+      border: none;
+      border-radius: 4px;
+      padding: 6px 10px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    
+    .action-btn.edit {
+      color: #008000;
+    }
+    
+    .action-btn.finished {
+      color: #2196F3;
+    }
+    
+    .action-btn.delete {
+      color: #f44336;
+    }
+    
+    .add-item-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 14px;
+      background: black;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    
+    .modal-content {
+      background-color: white;
+      padding: 25px;
+      border-radius: 8px;
+      width: 90%;
+      max-width: 400px;
+      max-height: 90%;
+      overflow-y: auto;
+    }
+    
+    .close {
+      float: right;
+      font-size: 24px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    
+    .form-group {
+      margin-bottom: 15px;
+      text-align: left;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 14px;
+      color: #333;
+    }
+    
+    .form-group input, .form-group select {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 16px;
+    }
+    
+    .optional {
+      color: #888;
+      font-style: italic;
+    }
+    
+    .price-summary {
+      background: #f9f9f9;
+      padding: 10px;
+      border-radius: 6px;
+      margin-top: 10px;
+    }
+    
+    .price-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 5px;
+    }
+    
+    .total-price {
+      font-weight: bold;
+      color: #008000;
+    }
+    
+    .error {
+      color: red;
+      font-size: 12px;
+      margin-top: 5px;
+      display: none;
+    }
+    
+    .loading {
+      display: none;
+      text-align: center;
+      margin: 10px 0;
+    }
+    
+    .loading-spinner {
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #008000;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 30px;
+      color: #555;
+    }
+    
+    .empty-state i {
+      font-size: 40px;
+      margin-bottom: 15px;
+      color: #ccc;
+    }
+    
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: white;
+      display: flex;
+      justify-content: space-around;
+      padding: 10px;
+      border-top: 1px solid #eee;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+    
+    .nav-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: #666;
+      text-decoration: none;
+      font-size: 12px;
+    }
+    
+    .nav-btn.active {
+      color: #008000;
+    }
+    
+    .nav-icon {
+      font-size: 20px;
+      margin-bottom: 4px;
+    }
+    
+    .popup {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #333;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 6px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      z-index: 1001;
+      display: none;
+      max-width: 90%;
+      text-align: center;
+    }
+    
+    .popup.success {
+      background-color: #4CAF50;
+    }
+    
+    .popup.error {
+      background-color: #f44336;
+    }
+    
+    .popup.info {
+      background-color: #2196F3;
+    }
+    
+    @media (max-width: 480px) {
+      .container {
+        padding: 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <a href="home.html" class="back-btn">
+        <i class="fas fa-arrow-left"></i>
+      </a>
+      <div class="logo">GENZURA</div>
+    </div>
+    
+    <input type="text" class="search-bar" id="searchInput" placeholder="Search your stock..." />
+    
+    <div class="tabs">
+      <div class="tab active" data-tab="stock">My Stock</div>
+      <div class="tab" data-tab="analytics">My Analytics</div>
+    </div>
+    
+    <div class="tab-content active" id="stockTab">
+      <div class="stock-summary">
+        <div class="summary-item">
+          <div class="summary-value" id="totalItems">0</div>
+          <div class="summary-label">Total Items</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-value" id="totalValue">0 RWF</div>
+          <div class="summary-label">Total Value</div>
+        </div>
+        <div class="summary-item">
+          <button class="add-item-btn" id="addStockBtn">
+            <i class="fas fa-plus"></i> Add Item
+          </button>
+        </div>
+      </div>
+      
+      <div class="stock-list" id="stockList">
+        <div class="loading">
+          <div class="loading-spinner"></div>
+          <p>Loading your stock...</p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="tab-content" id="analyticsTab">
+      <div class="stock-list" id="analyticsList">
+        <div class="loading">
+          <div class="loading-spinner"></div>
+          <p>Loading analytics...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Add/Edit Stock Modal -->
+  <div id="stockModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2 id="modalTitle">Add Stock Item</h2>
+      
+      <form id="stockForm">
+        <div class="form-group">
+          <label for="productName">Product Name</label>
+          <input type="text" id="productName" required>
+          <div class="error" id="nameError">Please enter product name</div>
+        </div>
+        
+        <div class="form-group">
+          <label for="productQuantity">Quantity</label>
+          <input type="number" id="productQuantity" min="1" value="1" required>
+          <div class="error" id="quantityError">Please enter quantity</div>
+        </div>
+        
+        <div class="form-group">
+          <label for="productPrice">Price per item (RWF)</label>
+          <input type="number" id="productPrice" min="0" step="1" required>
+          <div class="error" id="priceError">Please enter price</div>
+        </div>
+        
+        <div class="form-group">
+          <label for="productUnit">Unit</label>
+          <select id="productUnit" required>
+            <option value="pcs">Pieces</option>
+            <option value="kg">Kilograms</option>
+            <option value="g">Grams</option>
+            <option value="l">Liters</option>
+            <option value="ml">Milliliters</option>
+            <option value="pack">Packs</option>
+          </select>
+        </div>
+        
+        <div class="price-summary">
+          <div class="price-row">
+            <span>Total Price:</span>
+            <span id="totalPriceValue" class="total-price">0 RWF</span>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="expiryDate">Expiry Date <span class="optional">(optional)</span></label>
+          <input type="date" id="expiryDate">
+        </div>
+        
+        <div class="loading">
+          <div class="loading-spinner"></div>
+          <p>Saving item...</p>
+        </div>
+        
+        <button type="submit">Save Item</button>
+      </form>
+    </div>
+  </div>
+  
+  <!-- Edit/Delete Modal -->
+  <div id="editModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2>Edit Stock Item</h2>
+      
+      <form id="editForm">
+        <div class="form-group">
+          <label for="editName">Product Name</label>
+          <input type="text" id="editName" required>
+          <div class="error" id="editNameError">Please enter product name</div>
+        </div>
+        
+        <div class="form-group">
+          <label for="editQuantity">Quantity</label>
+          <input type="number" id="editQuantity" min="1" required>
+          <div class="error" id="editQuantityError">Please enter quantity</div>
+        </div>
+        
+        <div class="form-group">
+          <label for="editPrice">Price per item (RWF)</label>
+          <input type="number" id="editPrice" min="0" step="1" required>
+          <div class="error" id="editPriceError">Please enter price</div>
+        </div>
+        
+        <div class="form-group">
+          <label for="editUnit">Unit</label>
+          <select id="editUnit" required>
+            <option value="pcs">Pieces</option>
+            <option value="kg">Kilograms</option>
+            <option value="g">Grams</option>
+            <option value="l">Liters</option>
+            <option value="ml">Milliliters</option>
+            <option value="pack">Packs</option>
+          </select>
+        </div>
+        
+        <div class="price-summary">
+          <div class="price-row">
+            <span>Total Price:</span>
+            <span id="editTotalPriceValue" class="total-price">0 RWF</span>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="editExpiryDate">Expiry Date <span class="optional">(optional)</span></label>
+          <input type="date" id="editExpiryDate">
+        </div>
+        
+        <div class="loading">
+          <div class="loading-spinner"></div>
+          <p>Saving changes...</p>
+        </div>
+        
+        <button type="submit">Save Changes</button>
+        <button type="button" id="deleteItemBtn" style="background: #f44336; margin-top: 10px;">Delete Item</button>
+      </form>
+    </div>
+  </div>
+  
+  <div class="bottom-nav">
+    <a href="home.html" class="nav-btn">
+      <i class="fas fa-home nav-icon"></i>
+      <span>Home</span>
+    </a>
+    <a href="overview.html" class="nav-btn">
+      <i class="fas fa-chart-pie nav-icon"></i>
+      <span>Overview</span>
+    </a>
+    <a href="stock.html" class="nav-btn active">
+      <i class="fas fa-boxes nav-icon"></i>
+      <span>Stock</span>
+    </a>
+    <a href="notifications.html" class="nav-btn">
+      <i class="fas fa-bell nav-icon"></i>
+      <span>Notifications</span>
+    </a>
+  </div>
+
+  <div id="popup" class="popup"></div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+    import { getFirestore, collection, doc, setDoc, getDocs, deleteDoc, updateDoc, query, where, orderBy, onSnapshot, addDoc } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+    
+    const firebaseConfig = {
+      apiKey: "AIzaSyBgPFieysdvDl_Fx4nSZ95C25W7Wd6Xj7k",
+      authDomain: "aimebasketball.firebaseapp.com",
+      databaseURL: "https://aimebasketball-default-rtdb.firebaseio.com",
+      projectId: "aimebasketball",
+      storageBucket: "aimebasketball.firebasestorage.app",
+      messagingSenderId: "864360532917",
+      appId: "1:864360532917:web:c327893380d6fa2d30a7fc",
+      measurementId: "G-L4VRQQXHFM"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // DOM Elements
+    const searchInput = document.getElementById('searchInput');
+    const stockList = document.getElementById('stockList');
+    const analyticsList = document.getElementById('analyticsList');
+    const addStockBtn = document.getElementById('addStockBtn');
+    const stockModal = document.getElementById('stockModal');
+    const editModal = document.getElementById('editModal');
+    const closeBtns = document.querySelectorAll('.close');
+    const stockForm = document.getElementById('stockForm');
+    const editForm = document.getElementById('editForm');
+    const deleteItemBtn = document.getElementById('deleteItemBtn');
+    const modalTitle = document.getElementById('modalTitle');
+    const totalItemsEl = document.getElementById('totalItems');
+    const totalValueEl = document.getElementById('totalValue');
+    const tabs = document.querySelectorAll('.tab');
+    const tabContents = document.querySelectorAll('.tab-content');
+    const totalPriceValue = document.getElementById('totalPriceValue');
+    const editTotalPriceValue = document.getElementById('editTotalPriceValue');
+    
+    // State variables
+    let currentUser = null;
+    let userStock = [];
+    let currentEditId = null;
+    let searchTimer = null;
+
+    // Initialize the page
+    function init() {
+      showLoading(true);
+      
+      // Check authentication state
+      onAuthStateChanged(auth, async (user) => {
+        if (user) {
+          currentUser = user;
+          loadUserStock();
+          setupEventListeners();
+        } else {
+          // Redirect to login if not authenticated
+          window.location.href = 'login.html';
+        }
+      });
+    }
+    
+    // Set up event listeners
+    function setupEventListeners() {
+      // Add stock button
+      addStockBtn.addEventListener('click', () => {
+        openModal();
+      });
+      
+      // Close modals
+      closeBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          closeModal();
+          closeEditModal();
+        });
+      });
+      
+      // Click outside modal to close
+      window.addEventListener('click', (event) => {
+        if (event.target === stockModal) closeModal();
+        if (event.target === editModal) closeEditModal();
+      });
+      
+      // Form submissions
+      stockForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (validateStockForm()) {
+          await saveStockItem();
+        }
+      });
+      
+      editForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (validateEditForm()) {
+          await updateStockItem();
+        }
+      });
+      
+      // Delete item button
+      deleteItemBtn.addEventListener('click', async () => {
+        if (confirm('Are you sure you want to delete this item?')) {
+          await deleteStockItem(currentEditId);
+        }
+      });
+      
+      // Search functionality with debounce
+      searchInput.addEventListener('input', () => {
+        clearTimeout(searchTimer);
+        searchTimer = setTimeout(() => {
+          filterStock(searchInput.value);
+        }, 300);
+      });
+      
+      // Tab switching
+      tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          const tabId = tab.dataset.tab;
+          
+          // Update active tab
+          tabs.forEach(t => t.classList.remove('active'));
+          tab.classList.add('active');
+          
+          // Show correct content
+          tabContents.forEach(content => content.classList.remove('active'));
+          document.getElementById(`${tabId}Tab`).classList.add('active');
+          
+          // If analytics tab, refresh analytics view
+          if (tabId === 'analytics') {
+            displayAnalytics(userStock);
+          }
+        });
+      });
+      
+      // Calculate total price when quantity or price changes
+      document.getElementById('productQuantity').addEventListener('input', calculateTotalPrice);
+      document.getElementById('productPrice').addEventListener('input', calculateTotalPrice);
+      document.getElementById('editQuantity').addEventListener('input', calculateEditTotalPrice);
+      document.getElementById('editPrice').addEventListener('input', calculateEditTotalPrice);
+    }
+    
+    // Load user stock from Firestore
+    function loadUserStock() {
+      try {
+        const q = query(
+          collection(db, 'users', currentUser.uid, 'stock'),
+          orderBy('name')
+        );
+        
+        // Real-time listener for stock changes
+        const unsubscribe = onSnapshot(q, (querySnapshot) => {
+          userStock = [];
+          querySnapshot.forEach((doc) => {
+            userStock.push({ id: doc.id, ...doc.data() });
+          });
+          
+          displayStock(userStock);
+          updateStockSummary(userStock);
+          showLoading(false);
+          
+          // Check for expiry notifications
+          checkExpiryNotifications(userStock);
+        });
+        
+      } catch (error) {
+        console.error('Error loading stock:', error);
+        showError('Failed to load stock data');
+        showLoading(false);
+      }
+    }
+    
+    // Check for expiry dates and create notifications
+    async function checkExpiryNotifications(stockItems) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      for (const item of stockItems) {
+        if (item.expiryDate) {
+          const expiryDate = new Date(item.expiryDate);
+          expiryDate.setHours(0, 0, 0, 0);
+          
+          // Calculate days until expiry
+          const diffTime = expiryDate - today;
+          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+          
+          // Check if we need to create a notification
+          if (diffDays <= 3 && diffDays >= 0) {
+            // Check if notification already exists for this item
+            const notificationQuery = query(
+              collection(db, 'users', currentUser.uid, 'notifications'),
+              where('itemId', '==', item.id),
+              where('type', '==', 'expiry')
+            );
+            
+            const existingNotifications = await getDocs(notificationQuery);
+            
+            if (existingNotifications.empty) {
+              // Create expiry notification
+              let message = '';
+              if (diffDays === 0) {
+                message = `${item.name} has expired today!`;
+              } else if (diffDays === 1) {
+                message = `${item.name} expires tomorrow!`;
+              } else {
+                message = `${item.name} expires in ${diffDays} days!`;
+              }
+              
+              await addDoc(collection(db, 'users', currentUser.uid, 'notifications'), {
+                title: 'Product Expiry Alert',
+                message: message,
+                type: 'expiry',
+                itemId: item.id,
+                read: false,
+                timestamp: new Date()
+              });
+            }
+          }
+        }
+      }
+    }
+    
+    // Display stock in the UI
+    function displayStock(stockItems) {
+      if (stockItems.length === 0) {
+        stockList.innerHTML = `
+          <div class="empty-state">
+            <i class="fas fa-box-open"></i>
+            <p>Your stock is empty</p>
+            <p>Add items to track your inventory</p>
+          </div>
+        `;
+        return;
+      }
+      
+      stockList.innerHTML = stockItems.map(item => `
+        <div class="stock-item">
+          <div class="stock-info">
+            <div class="stock-name">${item.name}</div>
+            <div class="stock-details">
+              ${item.quantity} ${item.unit} • ${(item.price * item.quantity).toLocaleString()} RWF
+              ${item.expiryDate ? `<br>Expires: ${formatDate(item.expiryDate)}` : ''}
+            </div>
+          </div>
+          <div class="stock-actions">
+            <button class="action-btn edit" data-id="${item.id}">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="action-btn finished" data-id="${item.id}">
+              <i class="fas fa-check"></i>
+            </button>
+          </div>
+        </div>
+      `).join('');
+      
+      // Add event listeners to action buttons
+      document.querySelectorAll('.action-btn.edit').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const id = e.currentTarget.dataset.id;
+          editStockItem(id);
+        });
+      });
+      
+      document.querySelectorAll('.action-btn.finished').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const id = e.currentTarget.dataset.id;
+          markAsFinished(id);
+        });
+      });
+    }
+    
+    // Display analytics view
+    function displayAnalytics(stockItems) {
+      if (stockItems.length === 0) {
+        analyticsList.innerHTML = `
+          <div class="empty-state">
+            <i class="fas fa-chart-line"></i>
+            <p>No analytics data available</p>
+            <p>Add items to your stock to see analytics</p>
+          </div>
+        `;
+        return;
+      }
+      
+      analyticsList.innerHTML = stockItems.map(item => {
+        const addedDate = new Date(item.addedDate || item.createdAt || new Date());
+        const today = new Date();
+        const diffTime = today - addedDate;
+        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+        
+        let daysClass = 'days-in-stock';
+        let daysText = `${diffDays} days in stock`;
+        
+        // Check if item has expiry date
+        if (item.expiryDate) {
+          const expiryDate = new Date(item.expiryDate);
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          expiryDate.setHours(0, 0, 0, 0);
+          
+          const diffTime = expiryDate - today;
+          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+          
+          if (diffDays <= 0) {
+            daysClass += ' expired';
+            daysText = 'Expired';
+          } else if (diffDays <= 3) {
+            daysClass += ' warning';
+            daysText = `${diffDays} days until expiry`;
+          } else {
+            daysText = `Expires in ${diffDays} days`;
+          }
+        }
+        
+        if (item.finished) {
+          daysClass += ' finished';
+          daysText = `Finished after ${item.daysInStock || diffDays} days`;
+        }
+        
+        return `
+          <div class="stock-item">
+            <div class="stock-info">
+              <div class="stock-name">${item.name}</div>
+              <div class="stock-details">
+                ${item.quantity} ${item.unit} • ${(item.price * item.quantity).toLocaleString()} RWF
+                ${item.expiryDate ? `<br>Expiry: ${formatDate(item.expiryDate)}` : ''}
+              </div>
+              <div class="${daysClass}">${daysText}</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+    
+    // Update stock summary
+    function updateStockSummary(stockItems) {
+      const totalItems = stockItems.length;
+      const totalValue = stockItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      
+      totalItemsEl.textContent = totalItems;
+      totalValueEl.textContent = `${totalValue.toLocaleString()} RWF`;
+    }
+    
+    // Filter stock based on search query
+    function filterStock(query) {
+      if (!query) {
+        displayStock(userStock);
+        return;
+      }
+      
+      const filteredStock = userStock.filter(item => 
+        item.name.toLowerCase().includes(query.toLowerCase())
+      );
+      
+      displayStock(filteredStock);
+    }
+    
+    // Calculate total price for new item
+    function calculateTotalPrice() {
+      const quantity = parseInt(document.getElementById('productQuantity').value) || 0;
+      const price = parseInt(document.getElementById('productPrice').value) || 0;
+      const total = quantity * price;
+      
+      totalPriceValue.textContent = `${total.toLocaleString()} RWF`;
+    }
+    
+    // Calculate total price for edit item
+    function calculateEditTotalPrice() {
+      const quantity = parseInt(document.getElementById('editQuantity').value) || 0;
+      const price = parseInt(document.getElementById('editPrice').value) || 0;
+      const total = quantity * price;
+      
+      editTotalPriceValue.textContent = `${total.toLocaleString()} RWF`;
+    }
+    
+    // Format date for display
+    function formatDate(dateString) {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+    }
+    
+    // Open modal for adding
+    function openModal() {
+      stockForm.reset();
+      calculateTotalPrice();
+      stockModal.style.display = 'flex';
+    }
+    
+    // Close modal
+    function closeModal() {
+      stockModal.style.display = 'none';
+      
+      // Reset error messages
+      document.querySelectorAll('#stockForm .error').forEach(el => {
+        el.style.display = 'none';
+      });
+    }
+    
+    // Open edit modal
+    function openEditModal(item) {
+      currentEditId = item.id;
+      document.getElementById('editName').value = item.name;
+      document.getElementById('editQuantity').value = item.quantity;
+      document.getElementById('editPrice').value = item.price;
+      document.getElementById('editUnit').value = item.unit;
+      document.getElementById('editExpiryDate').value = item.expiryDate || '';
+      
+      calculateEditTotalPrice();
+      editModal.style.display = 'flex';
+    }
+    
+    // Close edit modal
+    function closeEditModal() {
+      editModal.style.display = 'none';
+      currentEditId = null;
+      
+      // Reset error messages
+      document.querySelectorAll('#editForm .error').forEach(el => {
+        el.style.display = 'none';
+      });
+    }
+    
+    // Validate stock form
+    function validateStockForm() {
+      let isValid = true;
+      
+      // Reset error messages
+      document.querySelectorAll('#stockForm .error').forEach(el => {
+        el.style.display = 'none';
+      });
+      
+      // Validate product name
+      const productName = document.getElementById('productName').value.trim();
+      if (!productName) {
+        document.getElementById('nameError').style.display = 'block';
+        isValid = false;
+      }
+      
+      // Validate quantity
+      const quantity = parseInt(document.getElementById('productQuantity').value);
+      if (isNaN(quantity) || quantity <= 0) {
+        document.getElementById('quantityError').style.display = 'block';
+        isValid = false;
+      }
+      
+      // Validate price
+      const price = parseInt(document.getElementById('productPrice').value);
+      if (isNaN(price) || price < 0) {
+        document.getElementById('priceError').style.display = 'block';
+        isValid = false;
+      }
+      
+      return isValid;
+    }
+    
+    // Validate edit form
+    function validateEditForm() {
+      let isValid = true;
+      
+      // Reset error messages
+      document.querySelectorAll('#editForm .error').forEach(el => {
+        el.style.display = 'none';
+      });
+      
+      // Validate product name
+      const productName = document.getElementById('editName').value.trim();
+      if (!productName) {
+        document.getElementById('editNameError').style.display = 'block';
+        isValid = false;
+      }
+      
+      // Validate quantity
+      const quantity = parseInt(document.getElementById('editQuantity').value);
+      if (isNaN(quantity) || quantity <= 0) {
+        document.getElementById('editQuantityError').style.display = 'block';
+        isValid = false;
+      }
+      
+      // Validate price
+      const price = parseInt(document.getElementById('editPrice').value);
+      if (isNaN(price) || price < 0) {
+        document.getElementById('editPriceError').style.display = 'block';
+        isValid = false;
+      }
+      
+      return isValid;
+    }
+    
+    // Save stock item to Firestore
+    async function saveStockItem() {
+      try {
+        showFormLoading(true);
+        
+        const stockData = {
+          name: document.getElementById('productName').value.trim(),
+          quantity: parseInt(document.getElementById('productQuantity').value),
+          price: parseInt(document.getElementById('productPrice').value),
+          unit: document.getElementById('productUnit').value,
+          addedDate: new Date(),
+          updatedAt: new Date()
+        };
+        
+        // Add expiry date if provided
+        const expiryDate = document.getElementById('expiryDate').value;
+        if (expiryDate) {
+          stockData.expiryDate = expiryDate;
+        }
+        
+        // Add to stock collection
+        await setDoc(doc(collection(db, 'users', currentUser.uid, 'stock')), stockData);
+        
+        showPopup('Stock item added successfully!', 'success');
+        closeModal();
+        showFormLoading(false);
+        
+      } catch (error) {
+        console.error('Error saving stock item:', error);
+        showError('Failed to save stock item');
+        showFormLoading(false);
+      }
+    }
+    
+    // Update stock item
+    async function updateStockItem() {
+      try {
+        showEditFormLoading(true);
+        
+        const stockData = {
+          name: document.getElementById('editName').value.trim(),
+          quantity: parseInt(document.getElementById('editQuantity').value),
+          price: parseInt(document.getElementById('editPrice').value),
+          unit: document.getElementById('editUnit').value,
+          updatedAt: new Date()
+        };
+        
+        // Add expiry date if provided
+        const expiryDate = document.getElementById('editExpiryDate').value;
+        if (expiryDate) {
+          stockData.expiryDate = expiryDate;
+        } else {
+          stockData.expiryDate = null;
+        }
+        
+        // Update item
+        await updateDoc(doc(db, 'users', currentUser.uid, 'stock', currentEditId), stockData);
+        
+        showPopup('Stock item updated successfully!', 'success');
+        closeEditModal();
+        showEditFormLoading(false);
+        
+      } catch (error) {
+        console.error('Error updating stock item:', error);
+        showError('Failed to update stock item');
+        showEditFormLoading(false);
+      }
+    }
+    
+    // Edit stock item
+    function editStockItem(id) {
+      const item = userStock.find(item => item.id === id);
+      if (item) {
+        openEditModal(item);
+      }
+    }
+    
+    // Mark item as finished
+    async function markAsFinished(id) {
+      const item = userStock.find(item => item.id === id);
+      if (item && confirm(`Mark ${item.name} as finished?`)) {
+        try {
+          const addedDate = new Date(item.addedDate || item.createdAt || new Date());
+          const finishedDate = new Date();
+          const diffTime = finishedDate - addedDate;
+          const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+          
+          await updateDoc(doc(db, 'users', currentUser.uid, 'stock', id), {
+            finished: true,
+            finishedDate: new Date(),
+            daysInStock: diffDays,
+            updatedAt: new Date()
+          });
+          
+          showPopup('Item marked as finished!', 'success');
+        } catch (error) {
+          console.error('Error marking item as finished:', error);
+          showError('Failed to mark item as finished');
+        }
+      }
+    }
+    
+    // Delete stock item
+    async function deleteStockItem(id) {
+      try {
+        await deleteDoc(doc(db, 'users', currentUser.uid, 'stock', id));
+        showPopup('Stock item deleted successfully!', 'success');
+        closeEditModal();
+      } catch (error) {
+        console.error('Error deleting stock item:', error);
+        showError('Failed to delete stock item');
+      }
+    }
+    
+    // Show loading state
+    function showLoading(show) {
+      const loadingElement = document.querySelector('#stockList .loading');
+      if (loadingElement) {
+        loadingElement.style.display = show ? 'block' : 'none';
+      }
+    }
+    
+    // Show form loading state
+    function showFormLoading(show) {
+      const loadingElement = document.querySelector('#stockForm .loading');
+      if (loadingElement) {
+        loadingElement.style.display = show ? 'block' : 'none';
+      }
+    }
+    
+    // Show edit form loading state
+    function showEditFormLoading(show) {
+      const loadingElement = document.querySelector('#editForm .loading');
+      if (loadingElement) {
+        loadingElement.style.display = show ? 'block' : 'none';
+      }
+    }
+    
+    // Show error message
+    function showError(message) {
+      showPopup(message, 'error');
+    }
+    
+    // Show popup message
+    function showPopup(message, type = 'info') {
+      const popup = document.getElementById('popup');
+      if (popup) {
+        popup.textContent = message;
+        popup.className = 'popup ' + type;
+        popup.style.display = 'block';
+        
+        setTimeout(() => {
+          popup.style.display = 'none';
+        }, 3000);
+      }
+    }
+    
+    // Initialize the application
+    init();
+  </script>
+</body>
+</html>
