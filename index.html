@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GENZURA 2| Loading</title>
+    <link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#000000">
+<link rel="apple-touch-icon" href="/icons/icon-192.png">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #fdfdfd;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: fixed;
+            width: 100%;
+            color: #000;
+        }
+        
+        .splash-container {
+            text-align: center;
+            padding: 20px;
+            width: 100%;
+            max-width: 100%;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .brand-name {
+            font-size: 2.8rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            letter-spacing: 2px;
+            color: #000;
+            position: relative;
+        }
+        
+        .quote {
+            font-size: 1rem;
+            max-width: 300px;
+            margin: 0 auto 40px;
+            line-height: 1.6;
+            color: #333;
+            font-weight: 400;
+        }
+        
+        .spinner-container {
+            position: relative;
+            width: 70px;
+            height: 70px;
+            margin: 0 auto 25px;
+        }
+        
+        .spinner {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 2px solid transparent;
+        }
+        
+        .spinner-1 {
+            top: 0;
+            left: 0;
+            border-top: 2px solid #0066ff;
+            border-right: 2px solid transparent;
+            animation: spin 1.8s infinite cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        }
+        
+        .spinner-2 {
+            top: 0;
+            left: 0;
+            border-bottom: 2px solid #0066ff;
+            border-left: 2px solid transparent;
+            animation: spin-reverse 1.5s infinite cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        }
+        
+        .loading-text {
+            font-size: 0.85rem;
+            color: #555;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-weight: 500;
+        }
+        
+        .copyright {
+            position: absolute;
+            bottom: 20px;
+            width: 100%;
+            text-align: center;
+            color: #777;
+            font-size: 0.7rem;
+        }
+        
+        /* Minimalist animated elements */
+        .dot {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background-color: #0066ff;
+            border-radius: 50%;
+            opacity: 0.3;
+        }
+        
+        .line {
+            position: absolute;
+            height: 1px;
+            background-color: #0066ff;
+            opacity: 0.2;
+            animation: line-grow 8s infinite linear;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes spin-reverse {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(-360deg); }
+        }
+        
+        @keyframes line-grow {
+            0% { width: 0px; opacity: 0; }
+            10% { opacity: 0.2; }
+            50% { width: 80px; }
+            90% { opacity: 0.2; }
+            100% { width: 0px; opacity: 0; }
+        }
+        
+        /* Mobile-specific optimizations */
+        @media (max-width: 480px) {
+            .brand-name {
+                font-size: 2.2rem;
+            }
+            
+            .quote {
+                font-size: 0.9rem;
+                max-width: 260px;
+                margin-bottom: 35px;
+            }
+            
+            .spinner-container {
+                width: 60px;
+                height: 60px;
+            }
+        }
+        
+        @media (max-height: 600px) {
+            .brand-name {
+                margin-bottom: 15px;
+                font-size: 2rem;
+            }
+            
+            .quote {
+                margin-bottom: 30px;
+                font-size: 0.85rem;
+            }
+            
+            .copyright {
+                bottom: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Minimalist animated elements -->
+    <div class="dot" style="top: 20%; left: 15%;"></div>
+    <div class="dot" style="top: 75%; right: 10%;"></div>
+    <div class="dot" style="bottom: 30%; left: 20%;"></div>
+    <div class="dot" style="top: 25%; right: 20%;"></div>
+    
+    <div class="line" style="top: 18%; left: 18%; transform: rotate(45deg);"></div>
+    <div class="line" style="bottom: 22%; right: 15%; transform: rotate(-30deg);"></div>
+    <div class="line" style="top: 70%; left: 10%; transform: rotate(15deg);"></div>
+    <div class="line" style="bottom: 15%; right: 25%; transform: rotate(-60deg);"></div>
+
+    <!-- Main content -->
+    <div class="splash-container">
+        <h1 class="brand-name">GENZURA v2</h1>
+        <p class="quote">"Your budget management matters, when building a strong future."</p>
+        
+        <div class="spinner-container">
+            <div class="spinner spinner-1"></div>
+            <div class="spinner spinner-2"></div>
+        </div>
+        
+        <p class="loading-text">Loading</p>
+    </div>
+    
+    <div class="copyright">
+        © 2025 GENZURA • All Rights Reserved
+    </div>
+
+    <script>
+        // Preload the next page (login.html)
+        function preloadUrl(url) {
+            const link = document.createElement('link');
+            link.rel = 'preload';
+            link.href = url;
+            link.as = 'document';
+            document.head.appendChild(link);
+        }
+        
+        // Create additional minimalist elements
+        function createMinimalistElements() {
+            const container = document.body;
+            
+            // Add a few more dots
+            for (let i = 0; i < 4; i++) {
+                const dot = document.createElement('div');
+                dot.classList.add('dot');
+                
+                const top = Math.random() * 80 + 10;
+                const left = Math.random() * 80 + 10;
+                
+                dot.style.top = `${top}%`;
+                dot.style.left = `${left}%`;
+                
+                // Random slight animation
+                dot.style.animation = `pulse ${Math.random() * 3 + 2}s infinite alternate`;
+                
+                container.appendChild(dot);
+            }
+        }
+        
+        // Preload the login page and create elements
+        window.addEventListener('load', function() {
+            preloadUrl('login.html');
+            createMinimalistElements();
+        });
+        
+        // Redirect after 3 seconds
+        setTimeout(function() {
+            window.location.href = 'login.html';
+        }, 3000);
+    </script>
+    <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker
+          .register("/service-worker.js")
+          .then((reg) => console.log("✅ Service Worker registered:", reg.scope))
+          .catch((err) => console.log("❌ Service Worker failed:", err));
+      });
+    }
+  </script>
+</body>
+</html>
