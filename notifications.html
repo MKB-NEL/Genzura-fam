@@ -1,1 +1,884 @@
-coming....
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GENZURA - Notifications</title>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#000000">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+  <link rel="icon" type="image/png" href="https://i.ibb.co/mFqfcpPj/cropped-circle-image.png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: Arial, sans-serif;
+      background: #fff;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      position: relative;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+    
+    .container {
+      width: 100%;
+      padding: 20px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .header {
+      text-align: center;
+      margin-bottom: 20px;
+      position: relative;
+    }
+    
+    .logo {
+      font-size: 28px;
+      font-weight: bold;
+      color: #008000;
+      margin-bottom: 10px;
+    }
+    
+    .back-btn {
+      position: absolute;
+      left: 0;
+      top: 5px;
+      color: #000;
+      font-size: 20px;
+    }
+    
+    .admin-panel {
+      background: #f9f9f9;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      display: none;
+    }
+    
+    .admin-panel.active {
+      display: block;
+    }
+    
+    .admin-title {
+      font-weight: bold;
+      margin-bottom: 10px;
+      color: #008000;
+    }
+    
+    .form-group {
+      margin-bottom: 15px;
+      text-align: left;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 14px;
+      color: #333;
+    }
+    
+    .form-group input, .form-group textarea, .form-group select {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 16px;
+    }
+    
+    .form-group textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+    
+    .send-notification-btn {
+      width: 100%;
+      padding: 14px;
+      background: #008000;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    
+    .tabs {
+      display: flex;
+      margin-bottom: 15px;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .tab {
+      padding: 10px 15px;
+      cursor: pointer;
+      font-weight: bold;
+      color: #555;
+      border-bottom: 2px solid transparent;
+    }
+    
+    .tab.active {
+      color: #008000;
+      border-bottom: 2px solid #008000;
+    }
+    
+    .tab-content {
+      display: none;
+    }
+    
+    .tab-content.active {
+      display: block;
+    }
+    
+    .notifications-list {
+      margin-bottom: 25px;
+    }
+    
+    .notification-item {
+      padding: 15px;
+      border-bottom: 1px solid #eee;
+      position: relative;
+    }
+    
+    .notification-item.unread {
+      background-color: #f0f8f0;
+    }
+    
+    .notification-title {
+      font-weight: bold;
+      margin-bottom: 5px;
+      color: #000;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .notification-message {
+      font-size: 14px;
+      color: #555;
+      margin-bottom: 5px;
+    }
+    
+    .notification-date {
+      font-size: 12px;
+      color: #888;
+    }
+    
+    .notification-type {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 10px;
+      font-size: 10px;
+      color: white;
+      margin-right: 5px;
+    }
+    
+    .type-system {
+      background: #2196F3;
+    }
+    
+    .type-expiry {
+      background: #FF9800;
+    }
+    
+    .type-finish {
+      background: #4CAF50;
+    }
+    
+    .type-monthly {
+      background: #9C27B0;
+    }
+    
+    .type-revenue {
+      background: #607D8B;
+    }
+    
+    .type-low_balance {
+      background: #f44336;
+    }
+    
+    .notification-actions {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      display: flex;
+      gap: 5px;
+    }
+    
+    .action-btn {
+      background: #f0f0f0;
+      border: none;
+      border-radius: 4px;
+      padding: 4px 8px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+    
+    .action-btn.archive {
+      color: #2196F3;
+    }
+    
+    .action-btn.delete {
+      color: #f44336;
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 30px;
+      color: #555;
+    }
+    
+    .empty-state i {
+      font-size: 40px;
+      margin-bottom: 15px;
+      color: #ccc;
+    }
+    
+    .loading {
+      display: none;
+      text-align: center;
+      margin: 10px 0;
+      padding: 20px;
+    }
+    
+    .loading-spinner {
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #008000;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 15px;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .error {
+      color: red;
+      font-size: 12px;
+      margin-top: 5px;
+      display: none;
+    }
+    
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: white;
+      display: flex;
+      justify-content: space-around;
+      padding: 10px;
+      border-top: 1px solid #eee;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+    
+    .nav-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: #666;
+      text-decoration: none;
+      font-size: 12px;
+    }
+    
+    .nav-btn.active {
+      color: #008000;
+    }
+    
+    .nav-icon {
+      font-size: 20px;
+      margin-bottom: 4px;
+    }
+    
+    .popup {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #333;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 6px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      z-index: 1001;
+      display: none;
+      max-width: 90%;
+      text-align: center;
+    }
+    
+    .popup.success {
+      background-color: #4CAF50;
+    }
+    
+    .popup.error {
+      background-color: #f44336;
+    }
+    
+    .popup.info {
+      background-color: #2196F3;
+    }
+    
+    @media (max-width: 480px) {
+      .container {
+        padding: 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <a href="home.html" class="back-btn">
+        <i class="fas fa-arrow-left"></i>
+      </a>
+      <div class="logo">GENZURA</div>
+    </div>
+    
+    <div class="admin-panel" id="adminPanel">
+      <div class="admin-title">Admin: Send Notification</div>
+      <form id="adminNotificationForm">
+        <div class="form-group">
+          <label for="notificationTitle">Title</label>
+          <input type="text" id="notificationTitle" required>
+          <div class="error" id="titleError">Please enter a title</div>
+        </div>
+        
+        <div class="form-group">
+          <label for="notificationMessage">Message</label>
+          <textarea id="notificationMessage" required></textarea>
+          <div class="error" id="messageError">Please enter a message</div>
+        </div>
+        
+        <div class="form-group">
+          <label for="notificationType">Type</label>
+          <select id="notificationType" required>
+            <option value="system">System</option>
+            <option value="expiry">Expiry Alert</option>
+            <option value="finish">Product Finished</option>
+            <option value="monthly">Monthly Update</option>
+            <option value="revenue">Revenue Update</option>
+            <option value="low_balance">Low Balance</option>
+          </select>
+        </div>
+        
+        <button type="submit" class="send-notification-btn">Send Notification</button>
+      </form>
+    </div>
+    
+    <div class="tabs">
+      <div class="tab active" data-tab="current">Current</div>
+      <div class="tab" data-tab="archived">Archived</div>
+    </div>
+    
+    <div class="tab-content active" id="currentTab">
+      <div class="notifications-list" id="currentNotifications">
+        <div class="loading">
+          <div class="loading-spinner"></div>
+          <p>Loading notifications...</p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="tab-content" id="archivedTab">
+      <div class="notifications-list" id="archivedNotifications">
+        <div class="loading">
+          <div class="loading-spinner"></div>
+          <p>Loading archived notifications...</p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="loading" id="mainLoading">
+      <div class="loading-spinner"></div>
+      <p>Loading your notifications...</p>
+    </div>
+  </div>
+  
+  <div class="bottom-nav">
+    <a href="home.html" class="nav-btn">
+      <i class="fas fa-home nav-icon"></i>
+      <span>Home</span>
+    </a>
+    <a href="overview.html" class="nav-btn">
+      <i class="fas fa-chart-pie nav-icon"></i>
+      <span>Overview</span>
+    </a>
+    <a href="stock.html" class="nav-btn">
+      <i class="fas fa-boxes nav-icon"></i>
+      <span>Stock</span>
+    </a>
+    <a href="notifications.html" class="nav-btn active">
+      <i class="fas fa-bell nav-icon"></i>
+      <span>Notifications</span>
+    </a>
+  </div>
+
+  <div id="popup" class="popup"></div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+    import { getFirestore, collection, doc, setDoc, getDoc, getDocs, addDoc, query, where, orderBy, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+    
+    const firebaseConfig = {
+      apiKey: "AIzaSyBgPFieysdvDl_Fx4nSZ95C25W7Wd6Xj7k",
+      authDomain: "aimebasketball.firebaseapp.com",
+      databaseURL: "https://aimebasketball-default-rtdb.firebaseio.com",
+      projectId: "aimebasketball",
+      storageBucket: "aimebasketball.firebasestorage.app",
+      messagingSenderId: "864360532917",
+      appId: "1:864360532917:web:c327893380d6fa2d30a7fc",
+      measurementId: "G-L4VRQQXHFM"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // DOM Elements
+    const adminPanel = document.getElementById('adminPanel');
+    const adminNotificationForm = document.getElementById('adminNotificationForm');
+    const currentNotifications = document.getElementById('currentNotifications');
+    const archivedNotifications = document.getElementById('archivedNotifications');
+    const tabs = document.querySelectorAll('.tab');
+    const tabContents = document.querySelectorAll('.tab-content');
+    const mainLoading = document.getElementById('mainLoading');
+    
+    // State variables
+    let currentUser = null;
+    let userData = null;
+    let isAdmin = false;
+    let notificationsData = [];
+    let archivedData = [];
+
+    // Initialize the page
+    function init() {
+      showLoading(true);
+      
+      // Check authentication state
+      onAuthStateChanged(auth, async (user) => {
+        if (user) {
+          currentUser = user;
+          await loadUserData();
+          await checkAdminStatus();
+          await loadNotifications();
+          setupEventListeners();
+          showLoading(false);
+        } else {
+          // Redirect to login if not authenticated
+          window.location.href = 'login.html';
+        }
+      });
+    }
+    
+    // Set up event listeners
+    function setupEventListeners() {
+      // Tab switching
+      tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          const tabId = tab.dataset.tab;
+          
+          // Update active tab
+          tabs.forEach(t => t.classList.remove('active'));
+          tab.classList.add('active');
+          
+          // Show correct content
+          tabContents.forEach(content => content.classList.remove('active'));
+          document.getElementById(`${tabId}Tab`).classList.add('active');
+          
+          // If archived tab, load archived notifications
+          if (tabId === 'archived') {
+            displayArchivedNotifications();
+          } else {
+            displayCurrentNotifications();
+          }
+        });
+      });
+      
+      // Admin notification form
+      if (adminNotificationForm) {
+        adminNotificationForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          if (validateAdminForm()) {
+            await sendAdminNotification();
+          }
+        });
+      }
+    }
+    
+    // Load user data from Firestore
+    async function loadUserData() {
+      try {
+        const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+        if (userDoc.exists()) {
+          userData = userDoc.data();
+        } else {
+          console.error('User document not found');
+        }
+      } catch (error) {
+        console.error('Error loading user data:', error);
+        showError('Failed to load user data');
+      }
+    }
+    
+    // Check if user is admin
+    async function checkAdminStatus() {
+      try {
+        // Check if user has admin role
+        if (userData && userData.role === 'admin') {
+          isAdmin = true;
+          adminPanel.classList.add('active');
+        }
+      } catch (error) {
+        console.error('Error checking admin status:', error);
+      }
+    }
+    
+    // Load notifications from Firestore
+    async function loadNotifications() {
+      try {
+        // Load current notifications (not archived)
+        const q = query(
+          collection(db, 'users', currentUser.uid, 'notifications'),
+          where('archived', '==', false),
+          orderBy('timestamp', 'desc')
+        );
+        
+        const querySnapshot = await getDocs(q);
+        notificationsData = [];
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          notificationsData.push({ 
+            id: doc.id, 
+            ...data,
+            timestamp: data.timestamp?.toDate() || new Date()
+          });
+        });
+        
+        // Load archived notifications
+        const archivedQ = query(
+          collection(db, 'users', currentUser.uid, 'notifications'),
+          where('archived', '==', true),
+          orderBy('timestamp', 'desc')
+        );
+        
+        const archivedSnapshot = await getDocs(archivedQ);
+        archivedData = [];
+        archivedSnapshot.forEach((doc) => {
+          const data = doc.data();
+          archivedData.push({ 
+            id: doc.id, 
+            ...data,
+            timestamp: data.timestamp?.toDate() || new Date()
+          });
+        });
+        
+        // Display notifications
+        displayCurrentNotifications();
+        
+        // Mark all as read
+        await markAllAsRead();
+        
+      } catch (error) {
+        console.error('Error loading notifications:', error);
+        showError('Failed to load notifications');
+      }
+    }
+    
+    // Display current notifications
+    function displayCurrentNotifications() {
+      if (notificationsData.length === 0) {
+        currentNotifications.innerHTML = `
+          <div class="empty-state">
+            <i class="fas fa-bell-slash"></i>
+            <p>No notifications</p>
+            <p>You're all caught up!</p>
+          </div>
+        `;
+        return;
+      }
+      
+      currentNotifications.innerHTML = notificationsData.map(notification => `
+        <div class="notification-item ${notification.read ? '' : 'unread'}">
+          <div class="notification-title">
+            <span>
+              <span class="notification-type type-${notification.type}">${getTypeLabel(notification.type)}</span>
+              ${notification.title}
+            </span>
+          </div>
+          <div class="notification-message">${notification.message}</div>
+          <div class="notification-date">${formatDate(notification.timestamp)}</div>
+          <div class="notification-actions">
+            <button class="action-btn archive" data-id="${notification.id}">
+              <i class="fas fa-archive"></i>
+            </button>
+            <button class="action-btn delete" data-id="${notification.id}">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        </div>
+      `).join('');
+      
+      // Add event listeners to action buttons
+      document.querySelectorAll('.action-btn.archive').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          const id = e.currentTarget.dataset.id;
+          await archiveNotification(id);
+        });
+      });
+      
+      document.querySelectorAll('.action-btn.delete').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          const id = e.currentTarget.dataset.id;
+          await deleteNotification(id);
+        });
+      });
+    }
+    
+    // Display archived notifications
+    function displayArchivedNotifications() {
+      if (archivedData.length === 0) {
+        archivedNotifications.innerHTML = `
+          <div class="empty-state">
+            <i class="fas fa-archive"></i>
+            <p>No archived notifications</p>
+            <p>Notifications you archive will appear here</p>
+          </div>
+        `;
+        return;
+      }
+      
+      archivedNotifications.innerHTML = archivedData.map(notification => `
+        <div class="notification-item">
+          <div class="notification-title">
+            <span>
+              <span class="notification-type type-${notification.type}">${getTypeLabel(notification.type)}</span>
+              ${notification.title}
+            </span>
+          </div>
+          <div class="notification-message">${notification.message}</div>
+          <div class="notification-date">${formatDate(notification.timestamp)}</div>
+          <div class="notification-actions">
+            <button class="action-btn delete" data-id="${notification.id}">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        </div>
+      `).join('');
+      
+      // Add event listeners to delete buttons
+      document.querySelectorAll('#archivedNotifications .action-btn.delete').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          const id = e.currentTarget.dataset.id;
+          await deleteNotification(id);
+        });
+      });
+    }
+    
+    // Archive a notification
+    async function archiveNotification(id) {
+      try {
+        await updateDoc(doc(db, 'users', currentUser.uid, 'notifications', id), {
+          archived: true,
+          read: true,
+          updatedAt: new Date()
+        });
+        
+        // Reload notifications
+        await loadNotifications();
+        showPopup('Notification archived', 'success');
+        
+      } catch (error) {
+        console.error('Error archiving notification:', error);
+        showError('Failed to archive notification');
+      }
+    }
+    
+    // Delete a notification (soft delete - just mark as deleted)
+    async function deleteNotification(id) {
+      try {
+        await updateDoc(doc(db, 'users', currentUser.uid, 'notifications', id), {
+          deleted: true,
+          updatedAt: new Date()
+        });
+        
+        // Reload notifications
+        await loadNotifications();
+        showPopup('Notification deleted', 'success');
+        
+      } catch (error) {
+        console.error('Error deleting notification:', error);
+        showError('Failed to delete notification');
+      }
+    }
+    
+    // Mark all notifications as read
+    async function markAllAsRead() {
+      try {
+        const unreadNotifications = notificationsData.filter(n => !n.read);
+        
+        for (const notification of unreadNotifications) {
+          await updateDoc(doc(db, 'users', currentUser.uid, 'notifications', notification.id), {
+            read: true,
+            updatedAt: new Date()
+          });
+        }
+        
+        // Reload notifications if any were updated
+        if (unreadNotifications.length > 0) {
+          await loadNotifications();
+        }
+        
+      } catch (error) {
+        console.error('Error marking notifications as read:', error);
+      }
+    }
+    
+    // Send admin notification to all users
+    async function sendAdminNotification() {
+      try {
+        showLoading(true);
+        
+        const title = document.getElementById('notificationTitle').value;
+        const message = document.getElementById('notificationMessage').value;
+        const type = document.getElementById('notificationType').value;
+        
+        // Get all users
+        const usersSnapshot = await getDocs(collection(db, 'users'));
+        const users = [];
+        usersSnapshot.forEach((doc) => {
+          users.push({ id: doc.id, ...doc.data() });
+        });
+        
+        // Send notification to each user
+        for (const user of users) {
+          await addDoc(collection(db, 'users', user.id, 'notifications'), {
+            title: title,
+            message: message,
+            type: type,
+            fromAdmin: true,
+            read: false,
+            archived: false,
+            timestamp: new Date()
+          });
+        }
+        
+        // Reset form
+        adminNotificationForm.reset();
+        
+        showPopup('Notification sent to all users', 'success');
+        showLoading(false);
+        
+      } catch (error) {
+        console.error('Error sending admin notification:', error);
+        showError('Failed to send notification');
+        showLoading(false);
+      }
+    }
+    
+    // Validate admin form
+    function validateAdminForm() {
+      let isValid = true;
+      
+      // Reset error messages
+      document.querySelectorAll('#adminNotificationForm .error').forEach(el => {
+        el.style.display = 'none';
+      });
+      
+      // Validate title
+      const title = document.getElementById('notificationTitle').value.trim();
+      if (!title) {
+        document.getElementById('titleError').style.display = 'block';
+        isValid = false;
+      }
+      
+      // Validate message
+      const message = document.getElementById('notificationMessage').value.trim();
+      if (!message) {
+        document.getElementById('messageError').style.display = 'block';
+        isValid = false;
+      }
+      
+      return isValid;
+    }
+    
+    // Get type label for display
+    function getTypeLabel(type) {
+      const typeLabels = {
+        'system': 'System',
+        'expiry': 'Expiry',
+        'finish': 'Finished',
+        'monthly': 'Monthly',
+        'revenue': 'Revenue',
+        'low_balance': 'Low Balance',
+        'negative_balance': 'Negative Balance'
+      };
+      
+      return typeLabels[type] || 'Notification';
+    }
+    
+    // Format date for display
+    function formatDate(date) {
+      const now = new Date();
+      const notificationDate = new Date(date);
+      const diffTime = Math.abs(now - notificationDate);
+      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+      
+      if (diffDays === 0) {
+        return 'Today at ' + notificationDate.toLocaleTimeString();
+      } else if (diffDays === 1) {
+        return 'Yesterday at ' + notificationDate.toLocaleTimeString();
+      } else if (diffDays < 7) {
+        return `${diffDays} days ago`;
+      } else {
+        return notificationDate.toLocaleDateString();
+      }
+    }
+    
+    // Show loading state
+    function showLoading(show) {
+      if (show) {
+        mainLoading.style.display = 'block';
+      } else {
+        mainLoading.style.display = 'none';
+      }
+    }
+    
+    // Show error message
+    function showError(message) {
+      showPopup(message, 'error');
+    }
+    
+    // Show popup message
+    function showPopup(message, type = 'info') {
+      const popup = document.getElementById('popup');
+      if (popup) {
+        popup.textContent = message;
+        popup.className = 'popup ' + type;
+        popup.style.display = 'block';
+        
+        setTimeout(() => {
+          popup.style.display = 'none';
+        }, 3000);
+      }
+    }
+    
+    // Initialize the application
+    init();
+  </script>
+</body>
+</html>
