@@ -381,6 +381,7 @@
       display: none;
       text-align: center;
       margin: 10px 0;
+      padding: 20px;
     }
     
     .loading-spinner {
@@ -390,7 +391,7 @@
       width: 20px;
       height: 20px;
       animation: spin 1s linear infinite;
-      margin: 0 auto;
+      margin: 0 auto 15px;
     }
     
     @keyframes spin {
@@ -840,8 +841,16 @@
         
         const querySnapshot = await getDocs(q);
         if (!querySnapshot.empty) {
-          monthlyData = querySnapshot.docs[0].data();
-          monthlyData.id = querySnapshot.docs[0].id;
+          const docData = querySnapshot.docs[0].data();
+          monthlyData = {
+            id: querySnapshot.docs[0].id,
+            ...docData,
+            // Convert Firestore Timestamps to Date objects
+            startDate: docData.startDate?.toDate() || new Date(),
+            revenueLockedUntil: docData.revenueLockedUntil?.toDate(),
+            createdAt: docData.createdAt?.toDate() || new Date(),
+            updatedAt: docData.updatedAt?.toDate() || new Date()
+          };
           
           // Check if revenue is set
           if (monthlyData.revenue && monthlyData.revenue > 0) {
@@ -853,7 +862,7 @@
             
             // Check if change is allowed
             if (monthlyData.revenueLockedUntil) {
-              const lockUntil = new Date(monthlyData.revenueLockedUntil);
+              const lockUntil = monthlyData.revenueLockedUntil;
               if (new Date() < lockUntil) {
                 // Still locked, start countdown
                 startChangeCountdown(lockUntil);
@@ -881,20 +890,24 @@
           orderBy('timestamp', 'desc')
         );
         
-        // Real-time listener for expenses changes
-        const unsubscribe = onSnapshot(q, (querySnapshot) => {
-          expensesData = [];
-          querySnapshot.forEach((doc) => {
-            expensesData.push({ id: doc.id, ...doc.data() });
+        const querySnapshot = await getDocs(q);
+        expensesData = [];
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          expensesData.push({ 
+            id: doc.id, 
+            ...data,
+            // Convert Firestore Timestamp to Date if needed
+            timestamp: data.timestamp?.toDate() || new Date(data.date || new Date())
           });
-          
-          // Update UI with new data
-          generateCalendar(currentDate);
-          displayMonthlySummary();
-          
-          // Check for notifications
-          checkExpenseNotifications();
         });
+        
+        // Update UI with new data
+        generateCalendar(currentDate);
+        displayMonthlySummary();
+        
+        // Check for notifications
+        checkExpenseNotifications();
         
       } catch (error) {
         console.error('Error loading expenses:', error);
@@ -907,7 +920,7 @@
       try {
         showLoading(true);
         
-        const monthlyData = {
+        const monthlyDoc = {
           revenue: amount,
           startDate: new Date(),
           revenueLockedUntil: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000), // Lock for 2 days
@@ -916,13 +929,16 @@
         };
         
         // Add to monthly collection
-        await setDoc(doc(collection(db, 'users', currentUser.uid, 'monthly')), monthlyData);
+        await setDoc(doc(collection(db, 'users', currentUser.uid, 'monthly')), monthlyDoc);
         
         // Update UI
         revenueInput.disabled = true;
         confirmRevenueBtn.style.display = 'none';
         changeRevenueLink.style.display = 'block';
         addRevenueBtn.style.display = 'block';
+        
+        // Reload monthly data
+        await loadMonthlyData();
         
         // Create notification
         await addDoc(collection(db, 'users', currentUser.uid, 'notifications'), {
@@ -967,6 +983,7 @@
         
         // Update UI
         revenueInput.value = newRevenue;
+        monthlyData.revenue = newRevenue;
         
         // Create notification
         await addDoc(collection(db, 'users', currentUser.uid, 'notifications'), {
@@ -1031,7 +1048,7 @@
     // Show change modal with countdown
     function showChangeModal() {
       if (monthlyData.revenueLockedUntil) {
-        const lockUntil = new Date(monthlyData.revenueLockedUntil);
+        const lockUntil = monthlyData.revenueLockedUntil;
         if (new Date() < lockUntil) {
           // Still locked, show countdown
           startChangeCountdown(lockUntil);
@@ -1121,7 +1138,7 @@
         
         // Check if day has expense data
         const hasData = expensesData.some(expense => {
-          const expenseDate = new Date(expense.timestamp?.toDate() || expense.date);
+          const expenseDate = new Date(expense.timestamp);
           expenseDate.setHours(0, 0, 0, 0);
           return expenseDate.getTime() === cellDate.getTime();
         });
@@ -1159,7 +1176,7 @@
     // Show daily details
     function showDailyDetails(date) {
       const dayExpenses = expensesData.filter(expense => {
-        const expenseDate = new Date(expense.timestamp?.toDate() || expense.date);
+        const expenseDate = new Date(expense.timestamp);
         expenseDate.setHours(0, 0, 0, 0);
         return expenseDate.getTime() === date.getTime();
       });
@@ -1214,7 +1231,7 @@
             <span class="category-amount">${serviceTotal.toLocaleString()} RWF</span>
           </div>
           <div class="progress-bar">
-            <div class="progress-fill" style="width: ${(serviceTotal / monthlyData.revenue) * 100}%"></div>
+            <div class="progress-fill" style="width: ${Math.min((serviceTotal / monthlyData.revenue) * 100, 100)}%"></div>
           </div>
         </div>
         
@@ -1224,7 +1241,7 @@
             <span class="category-amount">${productTotal.toLocaleString()} RWF</span>
           </div>
           <div class="progress-bar">
-            <div class="progress-fill" style="width: ${(productTotal / monthlyData.revenue) * 100}%"></div>
+            <div class="progress-fill" style="width: ${Math.min((productTotal / monthlyData.revenue) * 100, 100)}%"></div>
           </div>
         </div>
         
@@ -1234,7 +1251,7 @@
             <span class="category-amount">${stockTotal.toLocaleString()} RWF</span>
           </div>
           <div class="progress-bar">
-            <div class="progress-fill" style="width: ${(stockTotal / monthlyData.revenue) * 100}%"></div>
+            <div class="progress-fill" style="width: ${Math.min((stockTotal / monthlyData.revenue) * 100, 100)}%"></div>
           </div>
         </div>
         
@@ -1252,7 +1269,7 @@
       monthlySummaryEl.innerHTML = summaryHTML;
       
       // Show new month button if month is completed (based on start date + 30 days)
-      const monthEnd = new Date(monthlyData.startDate.toDate());
+      const monthEnd = new Date(monthlyData.startDate);
       monthEnd.setDate(monthEnd.getDate() + 30);
       
       if (new Date() > monthEnd) {
@@ -1281,7 +1298,7 @@
       
       // Check for daily expense notification
       const todayExpenses = expensesData.filter(expense => {
-        const expenseDate = new Date(expense.timestamp?.toDate() || expense.date);
+        const expenseDate = new Date(expense.timestamp);
         expenseDate.setHours(0, 0, 0, 0);
         return expenseDate.getTime() === today.getTime();
       });
@@ -1290,10 +1307,15 @@
         const dailyTotal = todayExpenses.reduce((sum, expense) => sum + expense.amount, 0);
         
         // Check if notification already sent today
+        const todayStart = new Date(today);
+        const todayEnd = new Date(today);
+        todayEnd.setHours(23, 59, 59, 999);
+        
         const notificationQuery = query(
           collection(db, 'users', currentUser.uid, 'notifications'),
           where('type', '==', 'daily'),
-          where('timestamp', '>=', new Date(today))
+          where('timestamp', '>=', todayStart),
+          where('timestamp', '<=', todayEnd)
         );
         
         const existingNotifications = await getDocs(notificationQuery);
@@ -1316,10 +1338,12 @@
       
       if (remaining < (monthlyData.revenue * 0.2)) {
         // Check if notification already sent for low balance
+        const last24Hours = new Date(Date.now() - 24 * 60 * 60 * 1000);
+        
         const notificationQuery = query(
           collection(db, 'users', currentUser.uid, 'notifications'),
           where('type', '==', 'low_balance'),
-          where('timestamp', '>=', new Date(Date.now() - 24 * 60 * 60 * 1000)) // Last 24 hours
+          where('timestamp', '>=', last24Hours)
         );
         
         const existingNotifications = await getDocs(notificationQuery);
