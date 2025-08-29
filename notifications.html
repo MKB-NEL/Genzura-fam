@@ -207,6 +207,14 @@
       background: #f44336;
     }
     
+    .type-announcement {
+      background: #E91E63;
+    }
+    
+    .type-finished {
+      background: #4CAF50;
+    }
+    
     .notification-actions {
       position: absolute;
       top: 15px;
@@ -374,10 +382,11 @@
           <select id="notificationType" required>
             <option value="system">System</option>
             <option value="expiry">Expiry Alert</option>
-            <option value="finish">Product Finished</option>
+            <option value="finished">Product Finished</option>
             <option value="monthly">Monthly Update</option>
             <option value="revenue">Revenue Update</option>
             <option value="low_balance">Low Balance</option>
+            <option value="announcement">Announcement</option>
           </select>
         </div>
         
@@ -554,47 +563,44 @@
       }
     }
     
-    // Load notifications from user document
+    // Load notifications from Firestore notifications subcollection
     async function loadNotifications() {
       try {
-        // Reset data arrays
-        notificationsData = [];
-        archivedData = [];
+        // Load current notifications (not archived)
+        const q = query(
+          collection(db, 'users', currentUser.uid, 'notifications'),
+          where('archived', '!=', true),
+          orderBy('timestamp', 'desc')
+        );
         
-        // Check if user has notifications array in their document
-        if (userData && userData.notifications && Array.isArray(userData.notifications)) {
-          // Process notifications from user document
-          userData.notifications.forEach(notification => {
-            // Skip deleted notifications
-            if (notification.deleted) return;
-            
-            // Convert timestamp if it's a Firestore timestamp
-            const timestamp = notification.timestamp?.toDate 
-              ? notification.timestamp.toDate() 
-              : notification.timestamp || new Date();
-            
-            const notificationData = {
-              id: notification.id || Math.random().toString(36).substr(2, 9),
-              title: notification.title || 'Notification',
-              message: notification.message || '',
-              type: notification.type || 'system',
-              read: notification.read || false,
-              archived: notification.archived || false,
-              timestamp: timestamp
-            };
-            
-            // Add to appropriate array
-            if (notificationData.archived) {
-              archivedData.push(notificationData);
-            } else {
-              notificationsData.push(notificationData);
-            }
+        const querySnapshot = await getDocs(q);
+        notificationsData = [];
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          notificationsData.push({ 
+            id: doc.id, 
+            ...data,
+            timestamp: data.timestamp?.toDate() || new Date()
           });
-          
-          // Sort by timestamp (newest first)
-          notificationsData.sort((a, b) => b.timestamp - a.timestamp);
-          archivedData.sort((a, b) => b.timestamp - a.timestamp);
-        }
+        });
+        
+        // Load archived notifications
+        const archivedQ = query(
+          collection(db, 'users', currentUser.uid, 'notifications'),
+          where('archived', '==', true),
+          orderBy('timestamp', 'desc')
+        );
+        
+        const archivedSnapshot = await getDocs(archivedQ);
+        archivedData = [];
+        archivedSnapshot.forEach((doc) => {
+          const data = doc.data();
+          archivedData.push({ 
+            id: doc.id, 
+            ...data,
+            timestamp: data.timestamp?.toDate() || new Date()
+          });
+        });
         
         // Display notifications
         displayCurrentNotifications();
@@ -701,27 +707,13 @@
     // Archive a notification
     async function archiveNotification(id) {
       try {
-        // Update the notification in the user's document
-        const updatedNotifications = userData.notifications.map(notification => {
-          if ((notification.id && notification.id === id) || 
-              (!notification.id && notification.title === notificationsData.find(n => n.id === id)?.title)) {
-            return {
-              ...notification,
-              archived: true,
-              read: true,
-              updatedAt: new Date()
-            };
-          }
-          return notification;
+        await updateDoc(doc(db, 'users', currentUser.uid, 'notifications', id), {
+          archived: true,
+          read: true,
+          updatedAt: new Date()
         });
         
-        // Update the user document in Firestore
-        await updateDoc(doc(db, 'users', currentUser.uid), {
-          notifications: updatedNotifications
-        });
-        
-        // Reload user data and notifications
-        await loadUserData();
+        // Reload notifications
         await loadNotifications();
         showPopup('Notification archived', 'success');
         
@@ -731,29 +723,13 @@
       }
     }
     
-    // Delete a notification (soft delete - just mark as deleted)
+    // Delete a notification
     async function deleteNotification(id) {
       try {
-        // Update the notification in the user's document
-        const updatedNotifications = userData.notifications.map(notification => {
-          if ((notification.id && notification.id === id) || 
-              (!notification.id && notification.title === notificationsData.find(n => n.id === id)?.title)) {
-            return {
-              ...notification,
-              deleted: true,
-              updatedAt: new Date()
-            };
-          }
-          return notification;
-        });
+        // Delete the notification document
+        await deleteDoc(doc(db, 'users', currentUser.uid, 'notifications', id));
         
-        // Update the user document in Firestore
-        await updateDoc(doc(db, 'users', currentUser.uid), {
-          notifications: updatedNotifications
-        });
-        
-        // Reload user data and notifications
-        await loadUserData();
+        // Reload notifications
         await loadNotifications();
         showPopup('Notification deleted', 'success');
         
@@ -768,31 +744,16 @@
       try {
         const unreadNotifications = notificationsData.filter(n => !n.read);
         
+        for (const notification of unreadNotifications) {
+          await updateDoc(doc(db, 'users', currentUser.uid, 'notifications', notification.id), {
+            read: true,
+            updatedAt: new Date()
+          });
+        }
+        
+        // Reload notifications if any were updated
         if (unreadNotifications.length > 0) {
-          // Update notifications in the user's document
-          const updatedNotifications = userData.notifications.map(notification => {
-            const isUnread = unreadNotifications.some(unread => 
-              (unread.id && unread.id === notification.id) || 
-              (!unread.id && unread.title === notification.title)
-            );
-            
-            if (isUnread) {
-              return {
-                ...notification,
-                read: true,
-                updatedAt: new Date()
-              };
-            }
-            return notification;
-          });
-          
-          // Update the user document in Firestore
-          await updateDoc(doc(db, 'users', currentUser.uid), {
-            notifications: updatedNotifications
-          });
-          
-          // Reload user data
-          await loadUserData();
+          await loadNotifications();
         }
         
       } catch (error) {
@@ -816,31 +777,17 @@
           users.push({ id: doc.id, ...doc.data() });
         });
         
-        // Send notification to each user by adding to their notifications array
+        // Send notification to each user
         for (const user of users) {
-          const userRef = doc(db, 'users', user.id);
-          const userSnap = await getDoc(userRef);
-          
-          if (userSnap.exists()) {
-            const userData = userSnap.data();
-            const currentNotifications = userData.notifications || [];
-            
-            const newNotification = {
-              id: Math.random().toString(36).substr(2, 9),
-              title: title,
-              message: message,
-              type: type,
-              fromAdmin: true,
-              read: false,
-              archived: false,
-              timestamp: new Date()
-            };
-            
-            // Update user document with new notification
-            await updateDoc(userRef, {
-              notifications: [...currentNotifications, newNotification]
-            });
-          }
+          await addDoc(collection(db, 'users', user.id, 'notifications'), {
+            title: title,
+            message: message,
+            type: type,
+            fromAdmin: true,
+            read: false,
+            archived: false,
+            timestamp: new Date()
+          });
         }
         
         // Reset form
@@ -887,11 +834,11 @@
       const typeLabels = {
         'system': 'System',
         'expiry': 'Expiry',
-        'finish': 'Finished',
+        'finished': 'Finished',
         'monthly': 'Monthly',
         'revenue': 'Revenue',
         'low_balance': 'Low Balance',
-        'negative_balance': 'Negative Balance'
+        'announcement': 'Announcement'
       };
       
       return typeLabels[type] || 'Notification';
@@ -905,9 +852,9 @@
       const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
       
       if (diffDays === 0) {
-        return 'Today at ' + notificationDate.toLocaleTimeString();
+        return 'Today at ' + notificationDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
       } else if (diffDays === 1) {
-        return 'Yesterday at ' + notificationDate.toLocaleTimeString();
+        return 'Yesterday at ' + notificationDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
       } else if (diffDays < 7) {
         return `${diffDays} days ago`;
       } else {
