@@ -58,6 +58,18 @@
       font-size: 20px;
     }
     
+    .user-info {
+      text-align: center;
+      margin-bottom: 15px;
+      font-size: 14px;
+      color: #666;
+    }
+    
+    .user-name {
+      font-weight: bold;
+      color: #008000;
+    }
+    
     .admin-panel {
       background: #f9f9f9;
       padding: 15px;
@@ -110,6 +122,11 @@
       border-radius: 6px;
       font-size: 16px;
       cursor: pointer;
+      transition: background 0.3s;
+    }
+    
+    .send-notification-btn:hover {
+      background: #006400;
     }
     
     .tabs {
@@ -124,6 +141,7 @@
       font-weight: bold;
       color: #555;
       border-bottom: 2px solid transparent;
+      transition: all 0.3s;
     }
     
     .tab.active {
@@ -137,6 +155,12 @@
     
     .tab-content.active {
       display: block;
+      animation: fadeIn 0.5s;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
     }
     
     .notifications-list {
@@ -148,10 +172,18 @@
       border-bottom: 1px solid #eee;
       position: relative;
       transition: all 0.3s ease;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    
+    .notification-item:hover {
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     }
     
     .notification-item.unread {
       background-color: #f0f8f0;
+      border-left: 4px solid #008000;
     }
     
     .notification-title {
@@ -167,6 +199,7 @@
       font-size: 14px;
       color: #555;
       margin-bottom: 5px;
+      line-height: 1.4;
     }
     
     .notification-date {
@@ -176,9 +209,9 @@
     
     .notification-type {
       display: inline-block;
-      padding: 2px 6px;
-      border-radius: 10px;
-      font-size: 10px;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-size: 11px;
       color: white;
       margin-right: 5px;
     }
@@ -223,7 +256,7 @@
       background: #f0f0f0;
       border: none;
       border-radius: 4px;
-      padding: 4px 8px;
+      padding: 5px 10px;
       cursor: pointer;
       font-size: 12px;
       transition: all 0.2s ease;
@@ -294,6 +327,7 @@
       border-top: 1px solid #eee;
       max-width: 480px;
       margin: 0 auto;
+      z-index: 1000;
     }
     
     .nav-btn {
@@ -303,6 +337,7 @@
       color: #666;
       text-decoration: none;
       font-size: 12px;
+      transition: color 0.3s;
     }
     
     .nav-btn.active {
@@ -328,6 +363,12 @@
       display: none;
       max-width: 90%;
       text-align: center;
+      animation: slideUp 0.3s;
+    }
+    
+    @keyframes slideUp {
+      from { bottom: 0; opacity: 0; }
+      to { bottom: 20px; opacity: 1; }
     }
     
     .popup.success {
@@ -346,6 +387,18 @@
       .container {
         padding: 15px;
       }
+      
+      .notification-item {
+        padding: 12px;
+      }
+      
+      .notification-actions {
+        position: relative;
+        top: 0;
+        right: 0;
+        margin-top: 10px;
+        justify-content: flex-end;
+      }
     }
   </style>
 </head>
@@ -356,6 +409,11 @@
         <i class="fas fa-arrow-left"></i>
       </a>
       <div class="logo">GENZURA</div>
+    </div>
+    
+    <div class="user-info" id="userInfo">
+      <span>Welcome, </span>
+      <span class="user-name" id="userName">Loading...</span>
     </div>
     
     <div class="admin-panel" id="adminPanel">
@@ -443,7 +501,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
-    import { getFirestore, collection, doc, setDoc, getDoc, getDocs, addDoc, query, where, orderBy, updateDoc, serverTimestamp, deleteDoc } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+    import { getFirestore, collection, doc, getDoc, getDocs, addDoc, query, where, orderBy, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
     
     const firebaseConfig = {
       apiKey: "AIzaSyBgPFieysdvDl_Fx4nSZ95C25W7Wd6Xj7k",
@@ -468,6 +526,7 @@
     const tabs = document.querySelectorAll('.tab');
     const tabContents = document.querySelectorAll('.tab-content');
     const mainLoading = document.getElementById('mainLoading');
+    const userName = document.getElementById('userName');
     
     // State variables
     let currentUser = null;
@@ -537,12 +596,22 @@
         const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
         if (userDoc.exists()) {
           userData = userDoc.data();
+          // Display user name
+          if (userData.fullName) {
+            userName.textContent = userData.fullName;
+          } else if (userData.name) {
+            userName.textContent = userData.name;
+          } else {
+            userName.textContent = currentUser.email;
+          }
         } else {
           console.error('User document not found');
+          userName.textContent = currentUser.email;
         }
       } catch (error) {
         console.error('Error loading user data:', error);
         showError('Failed to load user data');
+        userName.textContent = currentUser.email;
       }
     }
     
@@ -863,9 +932,15 @@
       const notificationDate = new Date(date);
       const diffTime = Math.abs(now - notificationDate);
       const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+      const diffHours = Math.floor(diffTime / (1000 * 60 * 60));
+      const diffMinutes = Math.floor(diffTime / (1000 * 60));
       
-      if (diffDays === 0) {
-        return 'Today at ' + notificationDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+      if (diffMinutes < 1) {
+        return 'Just now';
+      } else if (diffMinutes < 60) {
+        return `${diffMinutes} min ago`;
+      } else if (diffHours < 24) {
+        return `${diffHours} hr ago`;
       } else if (diffDays === 1) {
         return 'Yesterday at ' + notificationDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
       } else if (diffDays < 7) {
