@@ -4,11 +4,9 @@ const urlsToCache = [
   "/index.html",
   "/home.html",
   "/login.html",
-  "/admin.html",
   "/notifications.html",
   "/overview.html",
   "/stock.html",
-  "/transactions.html",
   "/icons/icon-192.png",
   "/icons/icon-512.png"
 ];
