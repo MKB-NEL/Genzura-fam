@@ -191,7 +191,7 @@
       background: #FF9800;
     }
     
-    .type-finish {
+    .type-finished {
       background: #4CAF50;
     }
     
@@ -209,10 +209,6 @@
     
     .type-announcement {
       background: #E91E63;
-    }
-    
-    .type-finished {
-      background: #4CAF50;
     }
     
     .notification-actions {
@@ -447,7 +443,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
-    import { getFirestore, collection, doc, setDoc, getDoc, getDocs, addDoc, query, where, orderBy, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+    import { getFirestore, collection, doc, setDoc, getDoc, getDocs, addDoc, query, where, orderBy, updateDoc, serverTimestamp, deleteDoc } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
     
     const firebaseConfig = {
       apiKey: "AIzaSyBgPFieysdvDl_Fx4nSZ95C25W7Wd6Xj7k",
@@ -577,11 +573,14 @@
         notificationsData = [];
         querySnapshot.forEach((doc) => {
           const data = doc.data();
-          notificationsData.push({ 
-            id: doc.id, 
-            ...data,
-            timestamp: data.timestamp?.toDate() || new Date()
-          });
+          // Check if the notification has all required fields
+          if (data.title && data.message) {
+            notificationsData.push({ 
+              id: doc.id, 
+              ...data,
+              timestamp: data.timestamp?.toDate() || new Date()
+            });
+          }
         });
         
         // Load archived notifications
@@ -595,11 +594,14 @@
         archivedData = [];
         archivedSnapshot.forEach((doc) => {
           const data = doc.data();
-          archivedData.push({ 
-            id: doc.id, 
-            ...data,
-            timestamp: data.timestamp?.toDate() || new Date()
-          });
+          // Check if the notification has all required fields
+          if (data.title && data.message) {
+            archivedData.push({ 
+              id: doc.id, 
+              ...data,
+              timestamp: data.timestamp?.toDate() || new Date()
+            });
+          }
         });
         
         // Display notifications
@@ -611,6 +613,15 @@
       } catch (error) {
         console.error('Error loading notifications:', error);
         showError('Failed to load notifications');
+        
+        // Show empty state if there's an error
+        currentNotifications.innerHTML = `
+          <div class="empty-state">
+            <i class="fas fa-exclamation-triangle"></i>
+            <p>Error loading notifications</p>
+            <p>Please try again later</p>
+          </div>
+        `;
       }
     }
     
@@ -631,11 +642,12 @@
         <div class="notification-item ${notification.read ? '' : 'unread'}">
           <div class="notification-title">
             <span>
-              <span class="notification-type type-${notification.type}">${getTypeLabel(notification.type)}</span>
+              <span class="notification-type type-${notification.type || 'system'}">${getTypeLabel(notification.type)}</span>
               ${notification.title}
             </span>
           </div>
           <div class="notification-message">${notification.message}</div>
+          ${notification.itemId ? `<div class="notification-item-id">Item ID: ${notification.itemId}</div>` : ''}
           <div class="notification-date">${formatDate(notification.timestamp)}</div>
           <div class="notification-actions">
             <button class="action-btn archive" data-id="${notification.id}">
@@ -681,11 +693,12 @@
         <div class="notification-item">
           <div class="notification-title">
             <span>
-              <span class="notification-type type-${notification.type}">${getTypeLabel(notification.type)}</span>
+              <span class="notification-type type-${notification.type || 'system'}">${getTypeLabel(notification.type)}</span>
               ${notification.title}
             </span>
           </div>
           <div class="notification-message">${notification.message}</div>
+          ${notification.itemId ? `<div class="notification-item-id">Item ID: ${notification.itemId}</div>` : ''}
           <div class="notification-date">${formatDate(notification.timestamp)}</div>
           <div class="notification-actions">
             <button class="action-btn delete" data-id="${notification.id}">
