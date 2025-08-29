@@ -147,6 +147,7 @@
       padding: 15px;
       border-bottom: 1px solid #eee;
       position: relative;
+      transition: all 0.3s ease;
     }
     
     .notification-item.unread {
@@ -221,6 +222,11 @@
       padding: 4px 8px;
       cursor: pointer;
       font-size: 12px;
+      transition: all 0.2s ease;
+    }
+    
+    .action-btn:hover {
+      transform: scale(1.05);
     }
     
     .action-btn.archive {
@@ -548,44 +554,47 @@
       }
     }
     
-    // Load notifications from Firestore
+    // Load notifications from user document
     async function loadNotifications() {
       try {
-        // Load current notifications (not archived)
-        const q = query(
-          collection(db, 'users', currentUser.uid, 'notifications'),
-          where('archived', '==', false),
-          orderBy('timestamp', 'desc')
-        );
-        
-        const querySnapshot = await getDocs(q);
+        // Reset data arrays
         notificationsData = [];
-        querySnapshot.forEach((doc) => {
-          const data = doc.data();
-          notificationsData.push({ 
-            id: doc.id, 
-            ...data,
-            timestamp: data.timestamp?.toDate() || new Date()
-          });
-        });
-        
-        // Load archived notifications
-        const archivedQ = query(
-          collection(db, 'users', currentUser.uid, 'notifications'),
-          where('archived', '==', true),
-          orderBy('timestamp', 'desc')
-        );
-        
-        const archivedSnapshot = await getDocs(archivedQ);
         archivedData = [];
-        archivedSnapshot.forEach((doc) => {
-          const data = doc.data();
-          archivedData.push({ 
-            id: doc.id, 
-            ...data,
-            timestamp: data.timestamp?.toDate() || new Date()
+        
+        // Check if user has notifications array in their document
+        if (userData && userData.notifications && Array.isArray(userData.notifications)) {
+          // Process notifications from user document
+          userData.notifications.forEach(notification => {
+            // Skip deleted notifications
+            if (notification.deleted) return;
+            
+            // Convert timestamp if it's a Firestore timestamp
+            const timestamp = notification.timestamp?.toDate 
+              ? notification.timestamp.toDate() 
+              : notification.timestamp || new Date();
+            
+            const notificationData = {
+              id: notification.id || Math.random().toString(36).substr(2, 9),
+              title: notification.title || 'Notification',
+              message: notification.message || '',
+              type: notification.type || 'system',
+              read: notification.read || false,
+              archived: notification.archived || false,
+              timestamp: timestamp
+            };
+            
+            // Add to appropriate array
+            if (notificationData.archived) {
+              archivedData.push(notificationData);
+            } else {
+              notificationsData.push(notificationData);
+            }
           });
-        });
+          
+          // Sort by timestamp (newest first)
+          notificationsData.sort((a, b) => b.timestamp - a.timestamp);
+          archivedData.sort((a, b) => b.timestamp - a.timestamp);
+        }
         
         // Display notifications
         displayCurrentNotifications();
@@ -692,13 +701,27 @@
     // Archive a notification
     async function archiveNotification(id) {
       try {
-        await updateDoc(doc(db, 'users', currentUser.uid, 'notifications', id), {
-          archived: true,
-          read: true,
-          updatedAt: new Date()
+        // Update the notification in the user's document
+        const updatedNotifications = userData.notifications.map(notification => {
+          if ((notification.id && notification.id === id) || 
+              (!notification.id && notification.title === notificationsData.find(n => n.id === id)?.title)) {
+            return {
+              ...notification,
+              archived: true,
+              read: true,
+              updatedAt: new Date()
+            };
+          }
+          return notification;
         });
         
-        // Reload notifications
+        // Update the user document in Firestore
+        await updateDoc(doc(db, 'users', currentUser.uid), {
+          notifications: updatedNotifications
+        });
+        
+        // Reload user data and notifications
+        await loadUserData();
         await loadNotifications();
         showPopup('Notification archived', 'success');
         
@@ -711,12 +734,26 @@
     // Delete a notification (soft delete - just mark as deleted)
     async function deleteNotification(id) {
       try {
-        await updateDoc(doc(db, 'users', currentUser.uid, 'notifications', id), {
-          deleted: true,
-          updatedAt: new Date()
+        // Update the notification in the user's document
+        const updatedNotifications = userData.notifications.map(notification => {
+          if ((notification.id && notification.id === id) || 
+              (!notification.id && notification.title === notificationsData.find(n => n.id === id)?.title)) {
+            return {
+              ...notification,
+              deleted: true,
+              updatedAt: new Date()
+            };
+          }
+          return notification;
         });
         
-        // Reload notifications
+        // Update the user document in Firestore
+        await updateDoc(doc(db, 'users', currentUser.uid), {
+          notifications: updatedNotifications
+        });
+        
+        // Reload user data and notifications
+        await loadUserData();
         await loadNotifications();
         showPopup('Notification deleted', 'success');
         
@@ -731,16 +768,31 @@
       try {
         const unreadNotifications = notificationsData.filter(n => !n.read);
         
-        for (const notification of unreadNotifications) {
-          await updateDoc(doc(db, 'users', currentUser.uid, 'notifications', notification.id), {
-            read: true,
-            updatedAt: new Date()
-          });
-        }
-        
-        // Reload notifications if any were updated
         if (unreadNotifications.length > 0) {
-          await loadNotifications();
+          // Update notifications in the user's document
+          const updatedNotifications = userData.notifications.map(notification => {
+            const isUnread = unreadNotifications.some(unread => 
+              (unread.id && unread.id === notification.id) || 
+              (!unread.id && unread.title === notification.title)
+            );
+            
+            if (isUnread) {
+              return {
+                ...notification,
+                read: true,
+                updatedAt: new Date()
+              };
+            }
+            return notification;
+          });
+          
+          // Update the user document in Firestore
+          await updateDoc(doc(db, 'users', currentUser.uid), {
+            notifications: updatedNotifications
+          });
+          
+          // Reload user data
+          await loadUserData();
         }
         
       } catch (error) {
@@ -764,17 +816,31 @@
           users.push({ id: doc.id, ...doc.data() });
         });
         
-        // Send notification to each user
+        // Send notification to each user by adding to their notifications array
         for (const user of users) {
-          await addDoc(collection(db, 'users', user.id, 'notifications'), {
-            title: title,
-            message: message,
-            type: type,
-            fromAdmin: true,
-            read: false,
-            archived: false,
-            timestamp: new Date()
-          });
+          const userRef = doc(db, 'users', user.id);
+          const userSnap = await getDoc(userRef);
+          
+          if (userSnap.exists()) {
+            const userData = userSnap.data();
+            const currentNotifications = userData.notifications || [];
+            
+            const newNotification = {
+              id: Math.random().toString(36).substr(2, 9),
+              title: title,
+              message: message,
+              type: type,
+              fromAdmin: true,
+              read: false,
+              archived: false,
+              timestamp: new Date()
+            };
+            
+            // Update user document with new notification
+            await updateDoc(userRef, {
+              notifications: [...currentNotifications, newNotification]
+            });
+          }
         }
         
         // Reset form
