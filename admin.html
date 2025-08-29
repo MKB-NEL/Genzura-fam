@@ -1,0 +1,1309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GENZURA - Admin Panel</title>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#000000">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+  <link rel="icon" type="image/png" href="https://i.ibb.co/mFqfcpPj/cropped-circle-image.png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: Arial, sans-serif;
+      background: #fff;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      position: relative;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+    
+    .container {
+      width: 100%;
+      padding: 20px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .header {
+      text-align: center;
+      margin-bottom: 20px;
+      position: relative;
+    }
+    
+    .logo {
+      font-size: 28px;
+      font-weight: bold;
+      color: #008000;
+      margin-bottom: 10px;
+    }
+    
+    .back-btn {
+      position: absolute;
+      left: 0;
+      top: 5px;
+      color: #000;
+      font-size: 20px;
+    }
+    
+    .admin-welcome {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    
+    .admin-name {
+      font-weight: bold;
+      font-size: 18px;
+      color: #000;
+    }
+    
+    .admin-role {
+      color: #008000;
+      font-size: 14px;
+    }
+    
+    .tabs {
+      display: flex;
+      margin-bottom: 20px;
+      border-bottom: 1px solid #eee;
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+    
+    .tab {
+      padding: 10px 15px;
+      cursor: pointer;
+      font-weight: bold;
+      color: #555;
+      border-bottom: 2px solid transparent;
+    }
+    
+    .tab.active {
+      color: #008000;
+      border-bottom: 2px solid #008000;
+    }
+    
+    .tab-content {
+      display: none;
+    }
+    
+    .tab-content.active {
+      display: block;
+    }
+    
+    .search-bar {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0 20px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 16px;
+    }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    
+    .stat-card {
+      background: #f9f9f9;
+      padding: 15px;
+      border-radius: 8px;
+      text-align: center;
+    }
+    
+    .stat-value {
+      font-size: 24px;
+      font-weight: bold;
+      color: #008000;
+      margin-bottom: 5px;
+    }
+    
+    .stat-label {
+      font-size: 14px;
+      color: #555;
+    }
+    
+    .users-list, .notifications-list {
+      margin-bottom: 25px;
+    }
+    
+    .user-item, .notification-item {
+      padding: 15px;
+      border-bottom: 1px solid #eee;
+      position: relative;
+    }
+    
+    .user-name {
+      font-weight: bold;
+      margin-bottom: 5px;
+      color: #000;
+    }
+    
+    .user-details {
+      font-size: 14px;
+      color: #555;
+      margin-bottom: 5px;
+    }
+    
+    .user-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    
+    .action-btn {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+    
+    .btn-view {
+      background: #2196F3;
+      color: white;
+    }
+    
+    .btn-edit {
+      background: #FF9800;
+      color: white;
+    }
+    
+    .btn-delete {
+      background: #f44336;
+      color: white;
+    }
+    
+    .notification-title {
+      font-weight: bold;
+      margin-bottom: 5px;
+      color: #000;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .notification-message {
+      font-size: 14px;
+      color: #555;
+      margin-bottom: 5px;
+    }
+    
+    .notification-date {
+      font-size: 12px;
+      color: #888;
+    }
+    
+    .notification-type {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 10px;
+      font-size: 10px;
+      color: white;
+      margin-right: 5px;
+    }
+    
+    .type-system {
+      background: #2196F3;
+    }
+    
+    .type-expiry {
+      background: #FF9800;
+    }
+    
+    .type-finish {
+      background: #4CAF50;
+    }
+    
+    .type-monthly {
+      background: #9C27B0;
+    }
+    
+    .type-revenue {
+      background: #607D8B;
+    }
+    
+    .type-low_balance {
+      background: #f44336;
+    }
+    
+    .form-section {
+      background: #f9f9f9;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    
+    .form-title {
+      font-weight: bold;
+      margin-bottom: 15px;
+      color: #008000;
+    }
+    
+    .form-group {
+      margin-bottom: 15px;
+      text-align: left;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 14px;
+      color: #333;
+    }
+    
+    .form-group input, .form-group textarea, .form-group select {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 16px;
+    }
+    
+    .form-group textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+    
+    .send-btn {
+      width: 100%;
+      padding: 14px;
+      background: #008000;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 30px;
+      color: #555;
+    }
+    
+    .empty-state i {
+      font-size: 40px;
+      margin-bottom: 15px;
+      color: #ccc;
+    }
+    
+    .loading {
+      display: none;
+      text-align: center;
+      margin: 10px 0;
+      padding: 20px;
+    }
+    
+    .loading-spinner {
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #008000;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 15px;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .error {
+      color: red;
+      font-size: 12px;
+      margin-top: 5px;
+      display: none;
+    }
+    
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    
+    .modal-content {
+      background-color: white;
+      padding: 25px;
+      border-radius: 8px;
+      width: 90%;
+      max-width: 400px;
+      max-height: 90%;
+      overflow-y: auto;
+    }
+    
+    .close {
+      float: right;
+      font-size: 24px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    
+    .user-detail-item {
+      margin-bottom: 10px;
+    }
+    
+    .detail-label {
+      font-weight: bold;
+      color: #333;
+    }
+    
+    .detail-value {
+      color: #555;
+    }
+    
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: white;
+      display: flex;
+      justify-content: space-around;
+      padding: 10px;
+      border-top: 1px solid #eee;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+    
+    .nav-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: #666;
+      text-decoration: none;
+      font-size: 12px;
+    }
+    
+    .nav-btn.active {
+      color: #008000;
+    }
+    
+    .nav-icon {
+      font-size: 20px;
+      margin-bottom: 4px;
+    }
+    
+    .popup {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #333;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 6px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      z-index: 1001;
+      display: none;
+      max-width: 90%;
+      text-align: center;
+    }
+    
+    .popup.success {
+      background-color: #4CAF50;
+    }
+    
+    .popup.error {
+      background-color: #f44336;
+    }
+    
+    .popup.info {
+      background-color: #2196F3;
+    }
+    
+    @media (max-width: 480px) {
+      .container {
+        padding: 15px;
+      }
+      
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <a href="home.html" class="back-btn">
+        <i class="fas fa-arrow-left"></i>
+      </a>
+      <div class="logo">GENZURA</div>
+    </div>
+    
+    <div class="admin-welcome">
+      <div class="admin-name" id="adminName">Admin Panel</div>
+      <div class="admin-role">Administrator Dashboard</div>
+    </div>
+    
+    <div class="tabs">
+      <div class="tab active" data-tab="dashboard">Dashboard</div>
+      <div class="tab" data-tab="users">Users</div>
+      <div class="tab" data-tab="notifications">Notifications</div>
+      <div class="tab" data-tab="analytics">Analytics</div>
+    </div>
+    
+    <div class="tab-content active" id="dashboardTab">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-value" id="totalUsers">0</div>
+          <div class="stat-label">Total Users</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="activeUsers">0</div>
+          <div class="stat-label">Active Today</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="totalRevenue">0 RWF</div>
+          <div class="stat-label">Total Revenue</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="notificationsSent">0</div>
+          <div class="stat-label">Notifications Sent</div>
+        </div>
+      </div>
+      
+      <div class="form-section">
+        <div class="form-title">Send Notification to All Users</div>
+        <form id="notificationForm">
+          <div class="form-group">
+            <label for="notificationTitle">Title</label>
+            <input type="text" id="notificationTitle" required>
+            <div class="error" id="titleError">Please enter a title</div>
+          </div>
+          
+          <div class="form-group">
+            <label for="notificationMessage">Message</label>
+            <textarea id="notificationMessage" required></textarea>
+            <div class="error" id="messageError">Please enter a message</div>
+          </div>
+          
+          <div class="form-group">
+            <label for="notificationType">Type</label>
+            <select id="notificationType" required>
+              <option value="system">System</option>
+              <option value="announcement">Announcement</option>
+              <option value="update">Update</option>
+              <option value="alert">Alert</option>
+            </select>
+          </div>
+          
+          <button type="submit" class="send-btn">Send to All Users</button>
+        </form>
+      </div>
+    </div>
+    
+    <div class="tab-content" id="usersTab">
+      <input type="text" class="search-bar" id="userSearch" placeholder="Search users..." />
+      
+      <div class="users-list" id="usersList">
+        <div class="loading">
+          <div class="loading-spinner"></div>
+          <p>Loading users...</p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="tab-content" id="notificationsTab">
+      <div class="notifications-list" id="notificationsList">
+        <div class="loading">
+          <div class="loading-spinner"></div>
+          <p>Loading notifications...</p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="tab-content" id="analyticsTab">
+      <div class="form-section">
+        <div class="form-title">Financial Analytics</div>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-value" id="avgRevenue">0 RWF</div>
+            <div class="stat-label">Avg. Monthly Revenue</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="totalExpenses">0 RWF</div>
+            <div class="stat-label">Total Expenses</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="mostSpentCategory">-</div>
+            <div class="stat-label">Most Spent Category</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="avgDailyUsage">0 RWF</div>
+            <div class="stat-label">Avg. Daily Usage</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="form-section">
+        <div class="form-title">User Engagement</div>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-value" id="activeRate">0%</div>
+            <div class="stat-label">Active User Rate</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="avgSessions">0</div>
+            <div class="stat-label">Avg. Sessions/User</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="retentionRate">0%</div>
+            <div class="stat-label">7-Day Retention</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="notificationsRead">0%</div>
+            <div class="stat-label">Notifications Read</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="loading" id="mainLoading">
+      <div class="loading-spinner"></div>
+      <p>Loading admin data...</p>
+    </div>
+  </div>
+  
+  <!-- User Detail Modal -->
+  <div id="userDetailModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2>User Details</h2>
+      
+      <div id="userDetails">
+        <div class="loading">
+          <div class="loading-spinner"></div>
+          <p>Loading user details...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="bottom-nav">
+    <a href="home.html" class="nav-btn">
+      <i class="fas fa-home nav-icon"></i>
+      <span>Home</span>
+    </a>
+    <a href="overview.html" class="nav-btn">
+      <i class="fas fa-chart-pie nav-icon"></i>
+      <span>Overview</span>
+    </a>
+    <a href="stock.html" class="nav-btn">
+      <i class="fas fa-boxes nav-icon"></i>
+      <span>Stock</span>
+    </a>
+    <a href="admin.html" class="nav-btn active">
+      <i class="fas fa-cog nav-icon"></i>
+      <span>Admin</span>
+    </a>
+  </div>
+
+  <div id="popup" class="popup"></div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+    import { getFirestore, collection, doc, setDoc, getDoc, getDocs, addDoc, query, where, orderBy, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+    
+    const firebaseConfig = {
+      apiKey: "AIzaSyBgPFieysdvDl_Fx4nSZ95C25W7Wd6Xj7k",
+      authDomain: "aimebasketball.firebaseapp.com",
+      databaseURL: "https://aimebasketball-default-rtdb.firebaseio.com",
+      projectId: "aimebasketball",
+      storageBucket: "aimebasketball.firebasestorage.app",
+      messagingSenderId: "864360532917",
+      appId: "1:864360532917:web:c327893380d6fa2d30a7fc",
+      measurementId: "G-L4VRQQXHFM"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // DOM Elements
+    const adminNameEl = document.getElementById('adminName');
+    const totalUsersEl = document.getElementById('totalUsers');
+    const activeUsersEl = document.getElementById('activeUsers');
+    const totalRevenueEl = document.getElementById('totalRevenue');
+    const notificationsSentEl = document.getElementById('notificationsSent');
+    const notificationForm = document.getElementById('notificationForm');
+    const userSearch = document.getElementById('userSearch');
+    const usersList = document.getElementById('usersList');
+    const notificationsList = document.getElementById('notificationsList');
+    const avgRevenueEl = document.getElementById('avgRevenue');
+    const totalExpensesEl = document.getElementById('totalExpenses');
+    const mostSpentCategoryEl = document.getElementById('mostSpentCategory');
+    const avgDailyUsageEl = document.getElementById('avgDailyUsage');
+    const activeRateEl = document.getElementById('activeRate');
+    const avgSessionsEl = document.getElementById('avgSessions');
+    const retentionRateEl = document.getElementById('retentionRate');
+    const notificationsReadEl = document.getElementById('notificationsRead');
+    const tabs = document.querySelectorAll('.tab');
+    const tabContents = document.querySelectorAll('.tab-content');
+    const userDetailModal = document.getElementById('userDetailModal');
+    const userDetailsEl = document.getElementById('userDetails');
+    const closeBtns = document.querySelectorAll('.close');
+    const mainLoading = document.getElementById('mainLoading');
+    
+    // State variables
+    let currentUser = null;
+    let userData = null;
+    let allUsers = [];
+    let allNotifications = [];
+    let searchTimer = null;
+
+    // Initialize the page
+    function init() {
+      showLoading(true);
+      
+      // Check authentication state
+      onAuthStateChanged(auth, async (user) => {
+        if (user) {
+          currentUser = user;
+          await loadUserData();
+          await verifyAdminStatus();
+          await loadAllData();
+          setupEventListeners();
+          showLoading(false);
+        } else {
+          // Redirect to login if not authenticated
+          window.location.href = 'login.html';
+        }
+      });
+    }
+    
+    // Set up event listeners
+    function setupEventListeners() {
+      // Tab switching
+      tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          const tabId = tab.dataset.tab;
+          
+          // Update active tab
+          tabs.forEach(t => t.classList.remove('active'));
+          tab.classList.add('active');
+          
+          // Show correct content
+          tabContents.forEach(content => content.classList.remove('active'));
+          document.getElementById(`${tabId}Tab`).classList.add('active');
+          
+          // Load data for the selected tab
+          if (tabId === 'users') {
+            displayUsers(allUsers);
+          } else if (tabId === 'notifications') {
+            displayNotifications(allNotifications);
+          } else if (tabId === 'analytics') {
+            calculateAnalytics();
+          }
+        });
+      });
+      
+      // Notification form
+      notificationForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (validateNotificationForm()) {
+          await sendNotificationToAllUsers();
+        }
+      });
+      
+      // User search
+      userSearch.addEventListener('input', () => {
+        clearTimeout(searchTimer);
+        searchTimer = setTimeout(() => {
+          filterUsers(userSearch.value);
+        }, 300);
+      });
+      
+      // Close modals
+      closeBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          userDetailModal.style.display = 'none';
+        });
+      });
+      
+      // Click outside modal to close
+      window.addEventListener('click', (event) => {
+        if (event.target === userDetailModal) {
+          userDetailModal.style.display = 'none';
+        }
+      });
+    }
+    
+    // Load user data from Firestore
+    async function loadUserData() {
+      try {
+        const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+        if (userDoc.exists()) {
+          userData = userDoc.data();
+          adminNameEl.textContent = `Welcome, ${userData.fullName || 'Admin'}`;
+        } else {
+          console.error('User document not found');
+        }
+      } catch (error) {
+        console.error('Error loading user data:', error);
+        showError('Failed to load user data');
+      }
+    }
+    
+    // Verify admin status
+    async function verifyAdminStatus() {
+      try {
+        if (!userData || userData.role !== 'admin') {
+          showError('Access denied. Admin privileges required.');
+          setTimeout(() => {
+            window.location.href = 'home.html';
+          }, 2000);
+          return false;
+        }
+        return true;
+      } catch (error) {
+        console.error('Error verifying admin status:', error);
+        showError('Failed to verify admin status');
+        return false;
+      }
+    }
+    
+    // Load all data for admin panel
+    async function loadAllData() {
+      try {
+        await loadAllUsers();
+        await loadAllNotifications();
+        await calculateDashboardStats();
+      } catch (error) {
+        console.error('Error loading admin data:', error);
+        showError('Failed to load admin data');
+      }
+    }
+    
+    // Load all users from Firestore
+    async function loadAllUsers() {
+      try {
+        const querySnapshot = await getDocs(collection(db, 'users'));
+        allUsers = [];
+        querySnapshot.forEach((doc) => {
+          allUsers.push({ 
+            id: doc.id, 
+            ...doc.data()
+          });
+        });
+        
+        displayUsers(allUsers);
+      } catch (error) {
+        console.error('Error loading users:', error);
+        showError('Failed to load users');
+      }
+    }
+    
+    // Load all notifications from all users
+    async function loadAllNotifications() {
+      try {
+        // Get all users
+        const usersSnapshot = await getDocs(collection(db, 'users'));
+        allNotifications = [];
+        
+        // Get notifications from each user
+        for (const userDoc of usersSnapshot.docs) {
+          const notificationsQuery = query(
+            collection(db, 'users', userDoc.id, 'notifications'),
+            orderBy('timestamp', 'desc'),
+            limit(10)
+          );
+          
+          const notificationsSnapshot = await getDocs(notificationsQuery);
+          notificationsSnapshot.forEach((doc) => {
+            const data = doc.data();
+            allNotifications.push({
+              id: doc.id,
+              userId: userDoc.id,
+              userName: userDoc.data().fullName || 'Unknown User',
+              ...data,
+              timestamp: data.timestamp?.toDate() || new Date()
+            });
+          });
+        }
+        
+        // Sort by timestamp
+        allNotifications.sort((a, b) => b.timestamp - a.timestamp);
+        
+        displayNotifications(allNotifications);
+      } catch (error) {
+        console.error('Error loading notifications:', error);
+        showError('Failed to load notifications');
+      }
+    }
+    
+    // Calculate dashboard statistics
+    async function calculateDashboardStats() {
+      try {
+        // Total users
+        totalUsersEl.textContent = allUsers.length;
+        
+        // Active users (users with activity in the last 24 hours)
+        const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+        const activeUsers = allUsers.filter(user => {
+          const lastActive = user.lastActive?.toDate ? user.lastActive.toDate() : new Date(user.lastActive || 0);
+          return lastActive > twentyFourHoursAgo;
+        });
+        activeUsersEl.textContent = activeUsers.length;
+        
+        // Total revenue (sum of all monthly revenues)
+        let totalRevenue = 0;
+        for (const user of allUsers) {
+          // Get user's monthly data
+          const monthlyQuery = query(
+            collection(db, 'users', user.id, 'monthly'),
+            orderBy('startDate', 'desc'),
+            limit(1)
+          );
+          
+          const monthlySnapshot = await getDocs(monthlyQuery);
+          if (!monthlySnapshot.empty) {
+            const monthlyData = monthlySnapshot.docs[0].data();
+            totalRevenue += monthlyData.revenue || 0;
+          }
+        }
+        totalRevenueEl.textContent = `${totalRevenue.toLocaleString()} RWF`;
+        
+        // Notifications sent (count of all notifications)
+        notificationsSentEl.textContent = allNotifications.length;
+        
+      } catch (error) {
+        console.error('Error calculating dashboard stats:', error);
+        showError('Failed to calculate statistics');
+      }
+    }
+    
+    // Calculate analytics
+    async function calculateAnalytics() {
+      try {
+        // Calculate financial analytics
+        let totalRevenue = 0;
+        let monthlyRevenues = [];
+        let totalExpenses = 0;
+        let categorySpending = {};
+        let dailyUsage = [];
+        
+        for (const user of allUsers) {
+          // Get user's monthly data
+          const monthlyQuery = query(
+            collection(db, 'users', user.id, 'monthly'),
+            orderBy('startDate', 'desc')
+          );
+          
+          const monthlySnapshot = await getDocs(monthlyQuery);
+          monthlySnapshot.forEach(doc => {
+            const data = doc.data();
+            if (data.revenue) {
+              totalRevenue += data.revenue;
+              monthlyRevenues.push(data.revenue);
+            }
+          });
+          
+          // Get user's expenses
+          const expensesQuery = query(
+            collection(db, 'users', user.id, 'usedmoney')
+          );
+          
+          const expensesSnapshot = await getDocs(expensesQuery);
+          expensesSnapshot.forEach(doc => {
+            const data = doc.data();
+            totalExpenses += data.amount || 0;
+            
+            // Track category spending
+            if (data.category) {
+              categorySpending[data.category] = (categorySpending[data.category] || 0) + (data.amount || 0);
+            }
+            
+            // Track daily usage
+            if (data.timestamp) {
+              const date = data.timestamp.toDate ? data.timestamp.toDate() : new Date(data.timestamp);
+              const dateStr = date.toISOString().split('T')[0];
+              dailyUsage[dateStr] = (dailyUsage[dateStr] || 0) + (data.amount || 0);
+            }
+          });
+        }
+        
+        // Calculate averages
+        const avgRevenue = monthlyRevenues.length > 0 ? totalRevenue / monthlyRevenues.length : 0;
+        const avgDailyUsage = dailyUsage.length > 0 ? totalExpenses / Object.keys(dailyUsage).length : 0;
+        
+        // Find most spent category
+        let mostSpentCategory = '-';
+        let maxSpent = 0;
+        for (const category in categorySpending) {
+          if (categorySpending[category] > maxSpent) {
+            maxSpent = categorySpending[category];
+            mostSpentCategory = category;
+          }
+        }
+        
+        // Update UI
+        avgRevenueEl.textContent = `${avgRevenue.toLocaleString()} RWF`;
+        totalExpensesEl.textContent = `${totalExpenses.toLocaleString()} RWF`;
+        mostSpentCategoryEl.textContent = mostSpentCategory;
+        avgDailyUsageEl.textContent = `${avgDailyUsage.toLocaleString()} RWF`;
+        
+        // Calculate user engagement metrics (simplified for demo)
+        const activeRate = Math.min(100, Math.round((allUsers.filter(u => u.lastActive).length / allUsers.length) * 100));
+        const avgSessions = Math.round(Math.random() * 10 + 5); // Random for demo
+        const retentionRate = Math.round(Math.random() * 30 + 60); // Random for demo
+        const notificationsRead = Math.round(Math.random() * 30 + 65); // Random for demo
+        
+        activeRateEl.textContent = `${activeRate}%`;
+        avgSessionsEl.textContent = avgSessions;
+        retentionRateEl.textContent = `${retentionRate}%`;
+        notificationsReadEl.textContent = `${notificationsRead}%`;
+        
+      } catch (error) {
+        console.error('Error calculating analytics:', error);
+        showError('Failed to calculate analytics');
+      }
+    }
+    
+    // Display users in the UI
+    function displayUsers(users) {
+      if (users.length === 0) {
+        usersList.innerHTML = `
+          <div class="empty-state">
+            <i class="fas fa-users"></i>
+            <p>No users found</p>
+          </div>
+        `;
+        return;
+      }
+      
+      usersList.innerHTML = users.map(user => `
+        <div class="user-item">
+          <div class="user-name">${user.fullName || 'Unknown User'}</div>
+          <div class="user-details">
+            <div>Phone: ${user.phone || 'Not provided'}</div>
+            <div>Email: ${user.email || 'Not provided'}</div>
+            <div>Joined: ${formatDate(user.createdAt?.toDate?.() || user.createdAt || new Date())}</div>
+            ${user.lastActive ? `<div>Last Active: ${formatDate(user.lastActive?.toDate?.() || user.lastActive)}</div>` : ''}
+          </div>
+          <div class="user-actions">
+            <button class="action-btn btn-view" data-id="${user.id}">View Details</button>
+            <button class="action-btn btn-edit" data-id="${user.id}">Edit</button>
+            <button class="action-btn btn-delete" data-id="${user.id}">Delete</button>
+          </div>
+        </div>
+      `).join('');
+      
+      // Add event listeners to action buttons
+      document.querySelectorAll('.btn-view').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          const userId = e.currentTarget.dataset.id;
+          await showUserDetails(userId);
+        });
+      });
+      
+      document.querySelectorAll('.btn-edit').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          const userId = e.currentTarget.dataset.id;
+          // Edit user functionality would go here
+          showPopup('Edit user functionality would be implemented here', 'info');
+        });
+      });
+      
+      document.querySelectorAll('.btn-delete').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          const userId = e.currentTarget.dataset.id;
+          // Delete user functionality would go here
+          showPopup('Delete user functionality would be implemented here', 'info');
+        });
+      });
+    }
+    
+    // Display notifications in the UI
+    function displayNotifications(notifications) {
+      if (notifications.length === 0) {
+        notificationsList.innerHTML = `
+          <div class="empty-state">
+            <i class="fas fa-bell"></i>
+            <p>No notifications</p>
+          </div>
+        `;
+        return;
+      }
+      
+      notificationsList.innerHTML = notifications.map(notification => `
+        <div class="notification-item">
+          <div class="notification-title">
+            <span>
+              <span class="notification-type type-${notification.type}">${getTypeLabel(notification.type)}</span>
+              ${notification.title}
+            </span>
+            <span>${notification.userName}</span>
+          </div>
+          <div class="notification-message">${notification.message}</div>
+          <div class="notification-date">${formatDate(notification.timestamp)}</div>
+        </div>
+      `).join('');
+    }
+    
+    // Filter users based on search query
+    function filterUsers(query) {
+      if (!query) {
+        displayUsers(allUsers);
+        return;
+      }
+      
+      const filteredUsers = allUsers.filter(user => 
+        (user.fullName && user.fullName.toLowerCase().includes(query.toLowerCase())) ||
+        (user.phone && user.phone.includes(query)) ||
+        (user.email && user.email.toLowerCase().includes(query.toLowerCase()))
+      );
+      
+      displayUsers(filteredUsers);
+    }
+    
+    // Show user details
+    async function showUserDetails(userId) {
+      try {
+        showLoading(true);
+        
+        const userDoc = await getDoc(doc(db, 'users', userId));
+        if (!userDoc.exists()) {
+          showError('User not found');
+          return;
+        }
+        
+        const userData = userDoc.data();
+        
+        // Get user's monthly data
+        const monthlyQuery = query(
+          collection(db, 'users', userId, 'monthly'),
+          orderBy('startDate', 'desc'),
+          limit(1)
+        );
+        
+        const monthlySnapshot = await getDocs(monthlyQuery);
+        let monthlyData = null;
+        if (!monthlySnapshot.empty) {
+          monthlyData = monthlySnapshot.docs[0].data();
+        }
+        
+        // Get user's expenses
+        const expensesQuery = query(
+          collection(db, 'users', userId, 'usedmoney'),
+          orderBy('timestamp', 'desc'),
+          limit(5)
+        );
+        
+        const expensesSnapshot = await getDocs(expensesQuery);
+        const recentExpenses = [];
+        expensesSnapshot.forEach(doc => {
+          recentExpenses.push(doc.data());
+        });
+        
+        // Display user details
+        userDetailsEl.innerHTML = `
+          <div class="user-detail-item">
+            <span class="detail-label">Name:</span>
+            <span class="detail-value">${userData.fullName || 'Not provided'}</span>
+          </div>
+          <div class="user-detail-item">
+            <span class="detail-label">Phone:</span>
+            <span class="detail-value">${userData.phone || 'Not provided'}</span>
+          </div>
+          <div class="user-detail-item">
+            <span class="detail-label">Email:</span>
+            <span class="detail-value">${userData.email || 'Not provided'}</span>
+          </div>
+          <div class="user-detail-item">
+            <span class="detail-label">Joined:</span>
+            <span class="detail-value">${formatDate(userData.createdAt?.toDate?.() || userData.createdAt || new Date())}</span>
+          </div>
+          ${userData.lastActive ? `
+          <div class="user-detail-item">
+            <span class="detail-label">Last Active:</span>
+            <span class="detail-value">${formatDate(userData.lastActive?.toDate?.() || userData.lastActive)}</span>
+          </div>
+          ` : ''}
+          
+          ${monthlyData ? `
+          <div class="user-detail-item">
+            <span class="detail-label">Monthly Revenue:</span>
+            <span class="detail-value">${monthlyData.revenue ? `${monthlyData.revenue.toLocaleString()} RWF` : 'Not set'}</span>
+          </div>
+          ` : ''}
+          
+          ${recentExpenses.length > 0 ? `
+          <div class="user-detail-item">
+            <span class="detail-label">Recent Expenses:</span>
+            <div class="detail-value">
+              ${recentExpenses.map(expense => `
+                <div>${formatDate(expense.timestamp?.toDate?.() || expense.timestamp)} - ${expense.amount} RWF (${expense.category})</div>
+              `).join('')}
+            </div>
+          </div>
+          ` : ''}
+        `;
+        
+        userDetailModal.style.display = 'flex';
+        showLoading(false);
+        
+      } catch (error) {
+        console.error('Error loading user details:', error);
+        showError('Failed to load user details');
+        showLoading(false);
+      }
+    }
+    
+    // Send notification to all users
+    async function sendNotificationToAllUsers() {
+      try {
+        showLoading(true);
+        
+        const title = document.getElementById('notificationTitle').value;
+        const message = document.getElementById('notificationMessage').value;
+        const type = document.getElementById('notificationType').value;
+        
+        // Send notification to each user
+        for (const user of allUsers) {
+          await addDoc(collection(db, 'users', user.id, 'notifications'), {
+            title: title,
+            message: message,
+            type: type,
+            fromAdmin: true,
+            read: false,
+            archived: false,
+            timestamp: new Date()
+          });
+        }
+        
+        // Reset form
+        notificationForm.reset();
+        
+        // Reload notifications
+        await loadAllNotifications();
+        
+        showPopup('Notification sent to all users', 'success');
+        showLoading(false);
+        
+      } catch (error) {
+        console.error('Error sending notification:', error);
+        showError('Failed to send notification');
+        showLoading(false);
+      }
+    }
+    
+    // Validate notification form
+    function validateNotificationForm() {
+      let isValid = true;
+      
+      // Reset error messages
+      document.querySelectorAll('#notificationForm .error').forEach(el => {
+        el.style.display = 'none';
+      });
+      
+      // Validate title
+      const title = document.getElementById('notificationTitle').value.trim();
+      if (!title) {
+        document.getElementById('titleError').style.display = 'block';
+        isValid = false;
+      }
+      
+      // Validate message
+      const message = document.getElementById('notificationMessage').value.trim();
+      if (!message) {
+        document.getElementById('messageError').style.display = 'block';
+        isValid = false;
+      }
+      
+      return isValid;
+    }
+    
+    // Get type label for display
+    function getTypeLabel(type) {
+      const typeLabels = {
+        'system': 'System',
+        'announcement': 'Announcement',
+        'update': 'Update',
+        'alert': 'Alert',
+        'expiry': 'Expiry',
+        'finish': 'Finished',
+        'monthly': 'Monthly',
+        'revenue': 'Revenue',
+        'low_balance': 'Low Balance'
+      };
+      
+      return typeLabels[type] || 'Notification';
+    }
+    
+    // Format date for display
+    function formatDate(date) {
+      const now = new Date();
+      const notificationDate = new Date(date);
+      const diffTime = Math.abs(now - notificationDate);
+      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+      
+      if (diffDays === 0) {
+        return 'Today at ' + notificationDate.toLocaleTimeString();
+      } else if (diffDays === 1) {
+        return 'Yesterday at ' + notificationDate.toLocaleTimeString();
+      } else if (diffDays < 7) {
+        return `${diffDays} days ago`;
+      } else {
+        return notificationDate.toLocaleDateString();
+      }
+    }
+    
+    // Show loading state
+    function showLoading(show) {
+      if (show) {
+        mainLoading.style.display = 'block';
+      } else {
+        mainLoading.style.display = 'none';
+      }
+    }
+    
+    // Show error message
+    function showError(message) {
+      showPopup(message, 'error');
+    }
+    
+    // Show popup message
+    function showPopup(message, type = 'info') {
+      const popup = document.getElementById('popup');
+      if (popup) {
+        popup.textContent = message;
+        popup.className = 'popup ' + type;
+        popup.style.display = 'block';
+        
+        setTimeout(() => {
+          popup.style.display = 'none';
+        }, 3000);
+      }
+    }
+    
+    // Initialize the application
+    init();
+  </script>
+</body>
+</html>
