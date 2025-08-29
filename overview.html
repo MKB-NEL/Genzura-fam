@@ -478,6 +478,58 @@
       background-color: #FF9800;
     }
     
+    .previous-months {
+      margin-top: 20px;
+      background: #f9f9f9;
+      padding: 15px;
+      border-radius: 8px;
+    }
+    
+    .month-card {
+      background: white;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .month-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      font-weight: bold;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 5px;
+    }
+    
+    .month-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    
+    .stat-box {
+      background: #f0f0f0;
+      padding: 10px;
+      border-radius: 6px;
+      text-align: center;
+    }
+    
+    .stat-label {
+      font-size: 12px;
+      color: #555;
+    }
+    
+    .stat-value {
+      font-weight: bold;
+      font-size: 16px;
+      color: #008000;
+    }
+    
+    .stat-value.negative {
+      color: #f44336;
+    }
+    
     @media (max-width: 480px) {
       .container {
         padding: 15px;
@@ -541,6 +593,13 @@
           <div class="loading">
             <div class="loading-spinner"></div>
             <p>Loading monthly summary...</p>
+          </div>
+        </div>
+        
+        <div class="previous-months" id="previousMonths" style="display: none;">
+          <h3>Previous Months</h3>
+          <div id="monthlyArchiveList">
+            <!-- Previous months will be displayed here -->
           </div>
         </div>
         
@@ -676,6 +735,8 @@
     const nextMonthBtn = document.getElementById('nextMonth');
     const dailyDetailsEl = document.getElementById('dailyDetails');
     const monthlySummaryEl = document.getElementById('monthlySummary');
+    const previousMonthsEl = document.getElementById('previousMonths');
+    const monthlyArchiveListEl = document.getElementById('monthlyArchiveList');
     const newMonthBtn = document.getElementById('newMonthBtn');
     const tabs = document.querySelectorAll('.tab');
     const tabContents = document.querySelectorAll('.tab-content');
@@ -684,7 +745,9 @@
     // State variables
     let currentUser = null;
     let userData = null;
+    let monthlyData = null;
     let expensesData = [];
+    let monthlyArchives = [];
     let currentDate = new Date();
     let selectedDate = new Date();
     let changeTimeout = null;
@@ -699,7 +762,9 @@
         if (user) {
           currentUser = user;
           await loadUserData();
+          await loadMonthlyData();
           await loadExpensesData();
+          await loadMonthlyArchives();
           setupEventListeners();
           generateCalendar(currentDate);
           showLoading(false);
@@ -727,7 +792,7 @@
       // Final confirm button
       finalConfirmBtn.addEventListener('click', async () => {
         const amount = parseFloat(revenueInput.value);
-        await setCurrentRevenue(amount);
+        await setMonthlyRevenue(amount);
         confirmModal.style.display = 'none';
       });
       
@@ -807,6 +872,7 @@
           // If monthly tab, refresh monthly view
           if (tabId === 'monthly') {
             displayMonthlySummary();
+            displayMonthlyArchives();
           }
         });
       });
@@ -819,36 +885,64 @@
         if (userDoc.exists()) {
           userData = userDoc.data();
           userNameEl.textContent = `Welcome, ${userData.fullName || 'User'}`;
-          
-          // Check if revenue is set
-          if (userData.currentRevenue !== undefined && userData.currentRevenue !== null) {
-            revenueInput.value = userData.currentRevenue;
-            revenueInput.disabled = true;
-            confirmRevenueBtn.style.display = 'none';
-            changeRevenueLink.style.display = 'block';
-            addRevenueBtn.style.display = 'block';
-            
-            // Check if change is allowed
-            if (userData.revenueLockedUntil) {
-              const lockUntil = userData.revenueLockedUntil.toDate();
-              if (new Date() < lockUntil) {
-                // Still locked, start countdown
-                startChangeCountdown(lockUntil);
-              }
-            }
-          } else {
-            // No revenue data found, allow setting revenue
-            revenueInput.disabled = false;
-            confirmRevenueBtn.style.display = 'block';
-            changeRevenueLink.style.display = 'none';
-            addRevenueBtn.style.display = 'none';
-          }
         } else {
           console.error('User document not found');
         }
       } catch (error) {
         console.error('Error loading user data:', error);
         showError('Failed to load user data');
+      }
+    }
+    
+    // Load monthly data from Firestore
+    async function loadMonthlyData() {
+      try {
+        const q = query(
+          collection(db, 'users', currentUser.uid, 'monthly'),
+          orderBy('startDate', 'desc'),
+          limit(1)
+        );
+        
+        const querySnapshot = await getDocs(q);
+        if (!querySnapshot.empty) {
+          const docData = querySnapshot.docs[0].data();
+          monthlyData = {
+            id: querySnapshot.docs[0].id,
+            ...docData,
+            // Convert Firestore Timestamps to Date objects
+            startDate: docData.startDate?.toDate() || new Date(),
+            revenueLockedUntil: docData.revenueLockedUntil?.toDate(),
+            createdAt: docData.createdAt?.toDate() || new Date(),
+            updatedAt: docData.updatedAt?.toDate() || new Date()
+          };
+          
+          // Check if revenue is set
+          if (monthlyData.revenue && monthlyData.revenue > 0) {
+            revenueInput.value = monthlyData.revenue;
+            revenueInput.disabled = true;
+            confirmRevenueBtn.style.display = 'none';
+            changeRevenueLink.style.display = 'block';
+            addRevenueBtn.style.display = 'block';
+            
+            // Check if change is allowed
+            if (monthlyData.revenueLockedUntil) {
+              const lockUntil = monthlyData.revenueLockedUntil;
+              if (new Date() < lockUntil) {
+                // Still locked, start countdown
+                startChangeCountdown(lockUntil);
+              }
+            }
+          }
+        } else {
+          // No monthly data found, allow setting revenue
+          revenueInput.disabled = false;
+          confirmRevenueBtn.style.display = 'block';
+          changeRevenueLink.style.display = 'none';
+          addRevenueBtn.style.display = 'none';
+        }
+      } catch (error) {
+        console.error('Error loading monthly data:', error);
+        showError('Failed to load monthly data');
       }
     }
     
@@ -885,20 +979,52 @@
       }
     }
     
-    // Set current revenue
-    async function setCurrentRevenue(amount) {
+    // Load monthly archives
+    async function loadMonthlyArchives() {
+      try {
+        const q = query(
+          collection(db, 'users', currentUser.uid, 'monthlyArchives'),
+          orderBy('endDate', 'desc')
+        );
+        
+        const querySnapshot = await getDocs(q);
+        monthlyArchives = [];
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          monthlyArchives.push({
+            id: doc.id,
+            ...data,
+            startDate: data.startDate?.toDate(),
+            endDate: data.endDate?.toDate(),
+            archivedAt: data.archivedAt?.toDate()
+          });
+        });
+        
+        // Display archives if on monthly tab
+        if (document.getElementById('monthlyTab').classList.contains('active')) {
+          displayMonthlyArchives();
+        }
+        
+      } catch (error) {
+        console.error('Error loading monthly archives:', error);
+      }
+    }
+    
+    // Set monthly revenue
+    async function setMonthlyRevenue(amount) {
       try {
         showLoading(true);
         
-        const userDocRef = doc(db, 'users', currentUser.uid);
-        const userUpdate = {
-          currentRevenue: amount,
+        const monthlyDoc = {
+          revenue: amount,
+          startDate: new Date(),
           revenueLockedUntil: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000), // Lock for 2 days
+          createdAt: new Date(),
           updatedAt: new Date()
         };
         
-        // Update user document
-        await updateDoc(userDocRef, userUpdate);
+        // Add to monthly collection
+        await setDoc(doc(collection(db, 'users', currentUser.uid, 'monthly')), monthlyDoc);
         
         // Update UI
         revenueInput.disabled = true;
@@ -906,24 +1032,24 @@
         changeRevenueLink.style.display = 'block';
         addRevenueBtn.style.display = 'block';
         
-        // Reload user data
-        await loadUserData();
+        // Reload monthly data
+        await loadMonthlyData();
         
         // Create notification
         await addDoc(collection(db, 'users', currentUser.uid, 'notifications'), {
-          title: 'Revenue Set',
-          message: `Your current revenue has been set to ${amount.toLocaleString()} RWF`,
-          type: 'revenue',
+          title: 'New Month Started',
+          message: `Your monthly revenue has been set to ${amount.toLocaleString()} RWF`,
+          type: 'monthly',
           read: false,
           timestamp: new Date()
         });
         
-        showPopup('Current revenue set successfully!', 'success');
+        showPopup('Monthly revenue set successfully!', 'success');
         showLoading(false);
         
       } catch (error) {
-        console.error('Error setting current revenue:', error);
-        showError('Failed to set current revenue');
+        console.error('Error setting monthly revenue:', error);
+        showError('Failed to set monthly revenue');
         showLoading(false);
       }
     }
@@ -936,10 +1062,10 @@
         const amount = parseFloat(document.getElementById('additionalRevenue').value);
         const source = document.getElementById('revenueSource').value.trim();
         
-        // Update user data
-        const newRevenue = userData.currentRevenue + amount;
-        await updateDoc(doc(db, 'users', currentUser.uid), {
-          currentRevenue: newRevenue,
+        // Update monthly data
+        const newRevenue = monthlyData.revenue + amount;
+        await updateDoc(doc(db, 'users', currentUser.uid, 'monthly', monthlyData.id), {
+          revenue: newRevenue,
           updatedAt: new Date()
         });
         
@@ -952,12 +1078,12 @@
         
         // Update UI
         revenueInput.value = newRevenue;
-        userData.currentRevenue = newRevenue;
+        monthlyData.revenue = newRevenue;
         
         // Create notification
         await addDoc(collection(db, 'users', currentUser.uid, 'notifications'), {
           title: 'Revenue Added',
-          message: `Added ${amount.toLocaleString()} RWF to your current revenue`,
+          message: `Added ${amount.toLocaleString()} RWF to your monthly revenue`,
           type: 'revenue',
           read: false,
           timestamp: new Date()
@@ -980,16 +1106,9 @@
       try {
         showLoading(true);
         
-        // Archive current month's data
-        const monthStart = new Date();
-        monthStart.setDate(1);
-        monthStart.setHours(0, 0, 0, 0);
-        
+        // Calculate total spent this month
+        const monthStart = new Date(monthlyData.startDate);
         const monthEnd = new Date();
-        monthEnd.setMonth(monthEnd.getMonth() + 1);
-        monthEnd.setDate(0);
-        monthEnd.setHours(23, 59, 59, 999);
-        
         const monthExpenses = expensesData.filter(expense => {
           const expenseDate = new Date(expense.timestamp);
           return expenseDate >= monthStart && expenseDate <= monthEnd;
@@ -997,13 +1116,21 @@
         
         const totalSpent = monthExpenses.reduce((sum, expense) => sum + expense.amount, 0);
         
-        // Archive the month
+        // Archive current month
         await addDoc(collection(db, 'users', currentUser.uid, 'monthlyArchives'), {
-          startDate: monthStart,
-          endDate: monthEnd,
-          revenue: userData.currentRevenue,
+          startDate: monthlyData.startDate,
+          endDate: new Date(),
+          initialRevenue: monthlyData.revenue,
           totalSpent: totalSpent,
+          remaining: monthlyData.revenue - totalSpent,
           archivedAt: new Date()
+        });
+        
+        // Archive current monthly data
+        await updateDoc(doc(db, 'users', currentUser.uid, 'monthly', monthlyData.id), {
+          archived: true,
+          endDate: new Date(),
+          updatedAt: new Date()
         });
         
         // Reset UI for new month
@@ -1023,6 +1150,10 @@
           timestamp: new Date()
         });
         
+        // Reload data
+        await loadMonthlyData();
+        await loadMonthlyArchives();
+        
         showPopup('New month started! Please set your new revenue.', 'success');
         showLoading(false);
         
@@ -1035,8 +1166,8 @@
     
     // Show change modal with countdown
     function showChangeModal() {
-      if (userData.revenueLockedUntil) {
-        const lockUntil = userData.revenueLockedUntil.toDate();
+      if (monthlyData.revenueLockedUntil) {
+        const lockUntil = monthlyData.revenueLockedUntil;
         if (new Date() < lockUntil) {
           // Still locked, show countdown
           startChangeCountdown(lockUntil);
@@ -1199,29 +1330,22 @@
     
     // Display monthly summary
     function displayMonthlySummary() {
-      if (!userData || userData.currentRevenue === undefined || userData.currentRevenue === null) {
+      if (!monthlyData) {
         monthlySummaryEl.innerHTML = `
-          <p>No revenue data available. Please set your current revenue first.</p>
+          <p>No monthly data available. Please set your monthly revenue first.</p>
         `;
         return;
       }
       
-      const monthStart = new Date();
-      monthStart.setDate(1);
-      monthStart.setHours(0, 0, 0, 0);
-      
+      const monthStart = new Date(monthlyData.startDate);
       const monthEnd = new Date();
-      monthEnd.setMonth(monthEnd.getMonth() + 1);
-      monthEnd.setDate(0);
-      monthEnd.setHours(23, 59, 59, 999);
-      
       const monthExpenses = expensesData.filter(expense => {
         const expenseDate = new Date(expense.timestamp);
         return expenseDate >= monthStart && expenseDate <= monthEnd;
       });
       
       const totalSpent = monthExpenses.reduce((sum, expense) => sum + expense.amount, 0);
-      const remaining = userData.currentRevenue - totalSpent;
+      const remaining = monthlyData.revenue - totalSpent;
       const serviceTotal = calculateCategoryTotal('service', monthExpenses);
       const productTotal = calculateCategoryTotal('product', monthExpenses);
       const stockTotal = calculateCategoryTotal('stock', monthExpenses);
@@ -1233,7 +1357,7 @@
             <span class="category-amount">${serviceTotal.toLocaleString()} RWF</span>
           </div>
           <div class="progress-bar">
-            <div class="progress-fill" style="width: ${Math.min((serviceTotal / userData.currentRevenue) * 100, 100)}%"></div>
+            <div class="progress-fill" style="width: ${Math.min((serviceTotal / monthlyData.revenue) * 100, 100)}%"></div>
           </div>
         </div>
         
@@ -1243,7 +1367,7 @@
             <span class="category-amount">${productTotal.toLocaleString()} RWF</span>
           </div>
           <div class="progress-bar">
-            <div class="progress-fill" style="width: ${Math.min((productTotal / userData.currentRevenue) * 100, 100)}%"></div>
+            <div class="progress-fill" style="width: ${Math.min((productTotal / monthlyData.revenue) * 100, 100)}%"></div>
           </div>
         </div>
         
@@ -1253,7 +1377,7 @@
             <span class="category-amount">${stockTotal.toLocaleString()} RWF</span>
           </div>
           <div class="progress-bar">
-            <div class="progress-fill" style="width: ${Math.min((stockTotal / userData.currentRevenue) * 100, 100)}%"></div>
+            <div class="progress-fill" style="width: ${Math.min((stockTotal / monthlyData.revenue) * 100, 100)}%"></div>
           </div>
         </div>
         
@@ -1270,11 +1394,64 @@
       
       monthlySummaryEl.innerHTML = summaryHTML;
       
-      // Show new month button if it's the end of the month
-      const today = new Date();
-      if (today.getDate() === new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate()) {
+      // Show new month button if month is completed (based on start date + 30 days)
+      const monthEndDate = new Date(monthlyData.startDate);
+      monthEndDate.setDate(monthEndDate.getDate() + 30);
+      
+      if (new Date() > monthEndDate) {
         newMonthBtn.style.display = 'block';
       }
+    }
+    
+    // Display monthly archives
+    function displayMonthlyArchives() {
+      if (monthlyArchives.length === 0) {
+        previousMonthsEl.style.display = 'none';
+        return;
+      }
+      
+      previousMonthsEl.style.display = 'block';
+      
+      let archivesHTML = '';
+      
+      monthlyArchives.forEach(archive => {
+        const monthName = archive.startDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+        const isNegative = archive.remaining < 0;
+        
+        archivesHTML += `
+          <div class="month-card">
+            <div class="month-header">
+              <span>${monthName}</span>
+              <span>${archive.endDate.toLocaleDateString()}</span>
+            </div>
+            <div class="month-stats">
+              <div class="stat-box">
+                <div class="stat-label">Started With</div>
+                <div class="stat-value">${archive.initialRevenue.toLocaleString()} RWF</div>
+              </div>
+              <div class="stat-box">
+                <div class="stat-label">Total Spent</div>
+                <div class="stat-value">${archive.totalSpent.toLocaleString()} RWF</div>
+              </div>
+              <div class="stat-box">
+                <div class="stat-label">Remaining</div>
+                <div class="stat-value ${isNegative ? 'negative' : ''}">${archive.remaining.toLocaleString()} RWF</div>
+              </div>
+              <div class="stat-box">
+                <div class="stat-label">Savings Rate</div>
+                <div class="stat-value ${isNegative ? 'negative' : ''}">${((archive.remaining / archive.initialRevenue) * 100).toFixed(1)}%</div>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+      
+      monthlyArchiveListEl.innerHTML = archivesHTML;
+    }
+    
+    // Calculate total spent
+    function calculateTotalSpent() {
+      return expensesData.reduce((sum, expense) => sum + expense.amount, 0);
     }
     
     // Calculate category total for a specific month
@@ -1286,7 +1463,7 @@
     
     // Check for expense notifications
     async function checkExpenseNotifications() {
-      if (!userData || userData.currentRevenue === undefined || userData.currentRevenue === null) return;
+      if (!monthlyData) return;
       
       const today = new Date();
       today.setHours(0, 0, 0, 0);
@@ -1328,24 +1505,17 @@
       }
       
       // Check for low balance notification
-      const monthStart = new Date();
-      monthStart.setDate(1);
-      monthStart.setHours(0, 0, 0, 0);
-      
+      const monthStart = new Date(monthlyData.startDate);
       const monthEnd = new Date();
-      monthEnd.setMonth(monthEnd.getMonth() + 1);
-      monthEnd.setDate(0);
-      monthEnd.setHours(23, 59, 59, 999);
-      
       const monthExpenses = expensesData.filter(expense => {
         const expenseDate = new Date(expense.timestamp);
         return expenseDate >= monthStart && expenseDate <= monthEnd;
       });
       
       const totalSpent = monthExpenses.reduce((sum, expense) => sum + expense.amount, 0);
-      const remaining = userData.currentRevenue - totalSpent;
+      const remaining = monthlyData.revenue - totalSpent;
       
-      if (remaining < (userData.currentRevenue * 0.2)) {
+      if (remaining < (monthlyData.revenue * 0.2)) {
         // Check if notification already sent for low balance
         const last24Hours = new Date(Date.now() - 24 * 60 * 60 * 1000);
         
