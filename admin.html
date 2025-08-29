@@ -686,7 +686,6 @@
         if (user) {
           currentUser = user;
           await loadUserData();
-          await verifyAdminStatus();
           await loadAllData();
           setupEventListeners();
           showLoading(false);
