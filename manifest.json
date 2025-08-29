@@ -1,6 +1,6 @@
 {
-  "name": "Genzura",
-  "short_name": "Genzura",
+  "name": "Genzura v2",
+  "short_name": "Genzura v2",
   "start_url": "/index.html",
   "scope": "/",
   "display": "standalone",
